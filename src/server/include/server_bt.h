@@ -21,5 +21,9 @@ baddr_t device_addr; /*UNIQUE device address*/
 
 }bt_device_t;
 
-
+/*
+ * Search for available BLUETOOTH devices within range
+ * upto a MAX of MAX_BT_DEVICES (defined above)
+ */
+int bt_scan_devices(bt_device_t **devices);
 #endif
