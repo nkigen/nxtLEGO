@@ -67,7 +67,7 @@ CPU ATMEL_AT91SAM7S256
     };
 
 
-    ALARM lcd_update_alarm
+    ALARM LCD_UPDATE_ALARM
     {
         COUNTER = SysTimerCnt;
         ACTION = ACTIVATETASK
