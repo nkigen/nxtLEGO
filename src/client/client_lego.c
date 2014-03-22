@@ -37,8 +37,12 @@ void ecrobot_device_terminate()
 void user_1ms_isr_type2(void)
 {
     StatusType ercd;
-
-    ++timestamp;
+    /*check value of timestamp to prevent an overflow
+     * if maximum value is reached reset it to 0*/
+    if(unlikely (timestamp == (uintmax_t) UINT32_MAX))
+        timestamp = 0;
+    else
+        ++timestamp;
 
     ercd = SignalCounter(SysTimeCnt);
     if(ercd != E_OK)
