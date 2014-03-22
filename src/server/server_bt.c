@@ -37,14 +37,15 @@ int bt_connect_device(int *c_sock, bdaddr_t *c_addr)
 
 int bt_scan_devices(int dev_id, int s_sock, bt_device_t *devices[MAX_BT_DEVICES])
 {
-    int flags = IREQ_CACHE_FLUSH;
-    int inq_res;
+    int flags = IREQ_CACHE_FLUSH;/*Flush cache of previously discovered BlueTooth devices*/
+    int inq_res;/*hci_inquiry results (Number of Bluetooth devices found*/
     int i;
     char addr[BT_ADDR_LEN] = { 0 };
     char name[BT_NAME_LEN] = { 0 };
     inquiry_info *dev_in_range = NULL;
 
-    //memset(devices, 0, MAX_BT_DEVICES * sizeof(bt_device_t));
+    if(devices != NULL) /*To prevent a segmentation fault if devices == NULL*/
+        memset(devices, 0, MAX_BT_DEVICES * sizeof(bt_device_t));
     dev_in_range = (inquiry_info *) malloc(sizeof(inquiry_info) * MAX_BT_DEVICES);
 
     inq_res = hci_inquiry( dev_id, MAX_INQUIRY_LEN, MAX_BT_DEVICES, NULL, &dev_in_range, flags);
@@ -67,12 +68,12 @@ int bt_scan_devices(int dev_id, int s_sock, bt_device_t *devices[MAX_BT_DEVICES]
         {
             strcpy(name,"[unknown]\0");
         }
-          
+
         devices[i] = (bt_device_t *) malloc(sizeof(bt_device_t));
         strcpy(devices[i]->name, name);
         memcpy(&devices[i]->device_addr,&dev_in_range[i].bdaddr,sizeof(bdaddr_t));
 
-	printf("BT_Server: Device #: %d ; Device ID: %s ; Device Name: %s ;\n",i, addr,devices[i]->name);
+        printf("BT_Server: Device #: %d ; Device ID: %s ; Device Name: %s ;\n",i, addr,devices[i]->name);
     }
 
     free(dev_in_range);

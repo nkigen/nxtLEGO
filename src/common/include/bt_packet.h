@@ -1,7 +1,7 @@
 #ifdef __BT_PACKET_H__
 #define __BT_PACKET_H_
 
-#define MAX_REQ		1 /*Maximum Number of requests send to/from the device*/
+#define MAX_REQ			1 /*Maximum Number of requests send to/from the device*/
 #define MAX_NUM_DATA		2 /*Maximum number of data transferred to/from LEGO*/
 
 /**
