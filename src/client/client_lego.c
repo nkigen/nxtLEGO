@@ -4,7 +4,7 @@
 //#include "../common/include/"
 /*************GLOBAL VARIABLES**********/
 
-uint32_t timestamp = 0;
+uint32_t timestamp;
 #define DEVICE_PWD "1234"
 
 /******OSEK Declarations******/
@@ -21,6 +21,7 @@ DeclareCounter(SysTimerCnt);
 
 void ecrobot_device_initialize()
 {
+    timestamp = 0;
     ecrobot_init_bt_slave(DEVICE_PWD);
 }
 
