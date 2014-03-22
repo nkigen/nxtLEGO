@@ -8,8 +8,9 @@
 
 /*************GLOBAL VARIABLES**********/
 uint32_t timestamp;
-bt_packet_t incoming[MAX_REQ];
-bt_packet_t outgoing[MAX_REQ];
+uint32_t bt_conn_status;
+bt_packet_t incoming_packet[MAX_REQ];
+bt_packet_t outgoing_packet[MAX_REQ];
 
 #define DEVICE_PWD "1234"
 
@@ -25,8 +26,8 @@ DeclareCounter(SysTimerCnt);
 
 static void reset_data_structs()
 {
-    memset(incoming, 0, sizeof(bt_packet_t));
-    memset(outgoing, 0, sizeof(bt_packet_t));
+    memset(incoming_packet, 0, sizeof(bt_packet_t));
+    memset(outgoing_packet, 0, sizeof(bt_packet_t));
 }
 
 static void reset_motor_power()
@@ -41,6 +42,7 @@ static void reset_motor_power()
 void ecrobot_device_initialize()
 {
     timestamp = 0;
+    bt_conn_status = 0;
     reset_data_structs();
     reset_motor_power();
     ecrobot_init_bt_slave(DEVICE_PWD);
@@ -76,6 +78,13 @@ void user_1ms_isr_type2(void)
 TASK(BtComm)
 {
 
+    bt_conn_status = ecrobot_read_bt_packet( incoming_packet, sizeof(bt_packet_t) * MAX_REQ);
+
+    if( bt_conn_status > 0)
+    {
+        bt_decode_incoming(incoming_packet, outgoing_packet);
+        ecrobot_send_bt((void *)outgoing_packet, 0,sizeof(bt_packet_t) * MAX_REQ);
+    }
     TerminateTask();
 }
 
