@@ -17,6 +17,14 @@ DeclareAlarm(LCD_UPDATE_ALARM);
 DeclareCounter(SysTimerCnt);
 
 
+
+
+static void reset_motor_power()
+{
+    nxt_motor_set_speed(NXT_PORT_A, 0, 1);
+    nxt_motor_set_speed(NXT_PORT_B, 0, 1);
+    nxt_motor_set_speed(NXT_PORT_C, 0, 1);
+}
 /****Initialize DEVICE*****/
 
 void ecrobot_device_initialize()
@@ -28,7 +36,7 @@ void ecrobot_device_initialize()
 
 void ecrobot_device_terminate()
 {
-
+    reset_motor_power();
     bt_reset();
     ecrobot_term_bt_connection();
 }
