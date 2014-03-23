@@ -41,6 +41,7 @@ int controller_init(int *server_sock)
         perror("server listen failed");
         return -1;
     }
+    return 0;
 }
 
 
@@ -99,15 +100,13 @@ int controller_process_req(bt_packet_t *in, bt_packet_t *out,int *client_sock, i
     }
     return 0;
 }
-void set_motor_power(bt_req_t *req, uint8_t  port, int power)
-{
-    req->operation 	= SET_MOTOR_POWER;
-    req->port		= port;
-    req->data[VALUE_INDEX] = (float)power;
-}
 
-void get_motor_power(bt_req_t *req, uint8_t port)
+int controller_stop(int server_sock, int client_sock)
 {
-    req->operation	= GET_MOTOR_POWER;
-    req->port		= port;
+    if(server_sock != -1)
+        close(server_sock);
+    if(client_sock != -1)
+        close(client_sock);
+
+    unlink(SERVER_PATH);
 }
