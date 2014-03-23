@@ -3,6 +3,11 @@
 
 #include <stdint.h>
 
+#define OPT_PORT		'p'
+#define OPT_MOTOR_POWER		'm'
+#define OPT_MOTOR_SAMPLE	'n'
+
+#define NUM_MOTOR_OPTS		3
 /*
  * Options to be decoded include:
  */
@@ -36,7 +41,7 @@ typedef struct {
 
     motor_opts_t motor; /*TODO: add support for all motors*/
 } app_options_t;
-int decode_options(char *opts);
+int decode_options(char *str, app_options_t *opts);
 
 
 #endif
