@@ -23,8 +23,9 @@
 #define MOTOR_C			7
 
 /******PORT Operations*****/
-#define SET_MOTOR_POWER		0
-#define GET_MOTOR_COUNT		1
+#define BT_CLOSE_CONNECTION	0
+#define SET_MOTOR_POWER		1
+#define GET_MOTOR_COUNT		2
 
 
 

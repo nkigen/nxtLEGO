@@ -13,6 +13,7 @@
 #define BT_NAME_LEN 		248 /*MAX length of user readable bluetooth device name*/
 #define BT_ADDR_LEN		19
 
+
 /*
  * Structure representing a Bluetooth DEVICE
  */

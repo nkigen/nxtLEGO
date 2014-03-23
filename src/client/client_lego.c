@@ -91,6 +91,6 @@ TASK(BtComm)
 
 TASK(DisplayTask)
 {
-
+    ecrobot_status_monitor("nxtLEGO client");
     TerminateTask();
 }

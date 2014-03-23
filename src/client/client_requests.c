@@ -10,7 +10,7 @@
 
 static inline void bt_port_decode(uint8_t in_port,uint8_t *out_port)
 {
-    switch(in_port)
+    switch(*in_port)
     {
     case MOTOR_A:
         *out_port = NXT_PORT_A;
