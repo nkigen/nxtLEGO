@@ -4,6 +4,7 @@
 #include "../server/include/controller.h"
 #include "../common/include/device_operations.h"
 #include "../common/include/opt_decoder.h"
-
-int start_app(char *data);
+#include "app_comm.h"
+extern app_options_t options;
+int start_app(int argc, char **argv, int *c_sock);
 #endif
