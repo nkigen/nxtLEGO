@@ -6,4 +6,5 @@
 
 
 int app_init_comm(int *server_sock);
+int app_terminate_comm(int c_sock);
 #endif
