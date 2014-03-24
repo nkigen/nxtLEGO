@@ -44,7 +44,19 @@ int controller_init(int *server_sock)
     return 0;
 }
 
+int controller_init_bt_conn( int *bt_server, bt_device_t *devices[MAX_BT_DEVICES])
+{
+    int ret;
+    ret = bt_start_server(bt_server);
+    if(ret < 0)
+    {
+        perror("Failed to start bt_server");
+        return -1;
+    }
 
+    bt_scan_devices(ret, *bt_server, devices);
+    return 0;
+}
 int controller_accept_conn(int *server_sock, int *client_sock)
 {
     int len;
@@ -89,7 +101,10 @@ int controller_process_req(bt_packet_t *in, bt_packet_t *out,int *client_sock, i
         server_client_bt(in,out,bt_sock); /*TODO: process return value*/
     }
     else
+    {
         printf("Connection to client terminated");
+        return 1; /*1 indicates connection has been terminated*/
+    }
 
     /*send data back to client*/
     rc = send(*client_sock, out, len, 0);
@@ -109,4 +124,13 @@ int controller_stop(int server_sock, int client_sock)
         close(client_sock);
 
     unlink(SERVER_PATH);
+}
+
+int controller_bt_stop(int server_sock, int client_sock)
+{
+  if( client_sock != -1)
+	  bt_close_connection(client_sock);
+  if( server_sock != -1)
+	  bt_close_connection(server_sock);
+  return 0;
 }
