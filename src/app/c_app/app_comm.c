@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <string.h>
-
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/un.h>
+#include <sys/socket.h>
+#include <unistd.h>
 #include "include/app_comm.h"
-
-
 
 int app_init_comm(int *c_sock)
 {
@@ -13,7 +15,7 @@ int app_init_comm(int *c_sock)
     struct sockaddr_un addr;
 
 
-    sd = socket(AF_UNIX, SOCK_STEAM, 0);
+    sd = socket(AF_UNIX, SOCK_STREAM, 0);
     if(sd < 0)
     {
         perror("c-app: socket failed");
@@ -21,7 +23,7 @@ int app_init_comm(int *c_sock)
     }
 
     *c_sock = sd;
-    memset(addr, 0, sizeof(struct sockaddr));
+    memset(&addr, 0, sizeof(struct sockaddr));
     addr.sun_family = AF_UNIX;
     strcpy(addr.sun_path, SERVER_PATH);
 
@@ -34,7 +36,7 @@ int app_init_comm(int *c_sock)
     }
 
     len = sizeof(bt_packet_t) * MAX_REQ;
-    rc = setsockopt(sd, SOL_SOCKET, SO_RCVLOMAT, (char *)&len, sizeof(len));
+    rc = setsockopt(sd, SOL_SOCKET, SO_RCVLOWAT, (char *)&len, sizeof(len));
 
     if(rc < 0)
     {
@@ -52,7 +54,7 @@ int app_terminate_comm(int c_sock)
     bt_packet_t pkt[MAX_REQ];
     memset(pkt, 0, sizeof(bt_packet_t));
 
-    pkt[0].operation = BT_END_CONNECTION;
+    pkt[0].packets[0].operation = BT_CLOSE_CONNECTION;
     len = sizeof(bt_packet_t) * MAX_REQ;
     rc = send(c_sock, pkt, len, 0);
     if(rc < 0)
