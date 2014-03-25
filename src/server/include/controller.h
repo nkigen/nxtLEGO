@@ -1,7 +1,7 @@
 #ifndef __CONTROLLER_H__
 #define __CONTROLLER_H__
 #include <stdint.h>
-#include "../../common/bt_packet.h"
+#include "../../common/include/bt_packet.h"
 #include "server_bt.h"
 
 /*********DEFINES*********/

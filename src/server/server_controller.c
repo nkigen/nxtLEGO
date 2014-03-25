@@ -13,7 +13,7 @@ int controller_init(int *server_sock)
 {
     struct sockaddr_un addr;
     int rc;
-    *server_sock = socket(AF_UNIX, SOCKSTREAM, 0);
+    *server_sock = socket(AF_UNIX, SOCK_STREAM, 0);
 
     if( *server_sock < 0)
     {
@@ -60,6 +60,7 @@ int controller_init_bt_conn( int *bt_server, bt_device_t *devices[MAX_BT_DEVICES
 int controller_accept_conn(int *server_sock, int *client_sock)
 {
     int len;
+    int rc;
     *client_sock = accept(*server_sock, NULL, NULL);
 
     if (*client_sock < 0)
@@ -69,7 +70,7 @@ int controller_accept_conn(int *server_sock, int *client_sock)
     }
 
     len = sizeof(bt_packet_t) * MAX_REQ;
-    rc = setsocketopt(*client_sock, SOL_SOCKET, SO_RCVLOWAT,(char *) &len, sizeof(len));
+    rc = setsockopt(*client_sock, SOL_SOCKET, SO_RCVLOWAT,(char *) &len, sizeof(len));
     if(rc < 0)
     {
         perror("server: setsocketopt error");
@@ -96,7 +97,7 @@ int controller_process_req(bt_packet_t *in, bt_packet_t *out,int *client_sock, i
         return -1;
     }
 
-    if( in[0] != BT_CLOSE_CONNECTION)
+    if( (int)in->packets[0].data[VALUE_INDEX] != BT_CLOSE_CONNECTION)
     {
         server_client_bt(in,out,bt_sock); /*TODO: process return value*/
     }
