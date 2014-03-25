@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
 
 #include "include/client_lego.h"
+#include "include/client_req.h"
 #include "../common/include/bt_packet.h"
 
+#define unlikely(x)     __builtin_expect((x),0)
 
 /*************GLOBAL VARIABLES**********/
 uint32_t timestamp;
@@ -68,9 +70,9 @@ void user_1ms_isr_type2(void)
     else
         ++timestamp;
 
-    ercd = SignalCounter(SysTimeCnt);
+    ercd = SignalCounter(SysTimerCnt);
     if(ercd != E_OK)
-        ShutdownOS(ecrd);
+        ShutdownOS(ercd);
 }
 
 

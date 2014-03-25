@@ -8,7 +8,7 @@
 #include "include/client_req.h"
 
 
-static inline void bt_port_decode(uint8_t in_port,uint8_t *out_port)
+static inline void bt_decode_port(uint8_t *in_port,uint8_t *out_port)
 {
     switch(*in_port)
     {
@@ -62,6 +62,6 @@ void bt_decode_incoming(bt_packet_t *incoming, bt_packet_t *outgoing)
 
     for( i = 0; i < MAX_REQ; ++i)
     {
-        bt_req_process(&incoming[i], &outgoing[i]);
+        bt_req_process(&incoming[i].packets[0], &outgoing[i].packets[0]);
     }
 }
