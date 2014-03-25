@@ -2,7 +2,7 @@
 #define __CLIENT_REQ_H__
 #include <stdint.h>
 
-#include "../../common/bt_packet.h"
+#include "../../common/include/bt_packet.h"
 
 
 extern uint32_t timestamp;
