@@ -6,7 +6,7 @@
 
 #include "include/client_req.h"
 
-
+#define GET_MOTOR_COUNT		GET_MOTOR_POWER
 static inline void bt_decode_port(uint8_t *in_port,uint8_t *out_port)
 {
     switch(*in_port)
