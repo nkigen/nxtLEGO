@@ -5,33 +5,33 @@
 
 #define BUF_SIZE	16
 
-static inline int decode_motor_power(char *str, motor_opts_t *motor)
+static int decode_motor_power(char *str, motor_opts_t *motor)
 {
-    char *p =str;
-    char tmp[5]; /*Maximum 3 digits+ 1 sign digit!!*/
+    char *p = str;
+    char tmp[5]; /*Maximum 3 digits+ 1 for the sign!!*/
     int val;
     int len;
-    p = strchr(p,':');
-    if(p != NULL) {
-        len = p - &str[0];
-        memcpy(tmp,str,len);
-        sscanf(tmp,"%d",&val); /*TODO: check if > 0*/
-        motor->min_power = val;
-        p += len + 1;
-    }
-    memset(tmp, 0, 5);
-    p = strchr(p,':');
-    if(p != NULL) {
-        len = p - &str[0];
-        memcpy(tmp,str,len);
-        sscanf(tmp,"%d",&val); /*TODO: check if > 0*/
-        motor->max_power = val;
-        p += len + 1;
-    }
 
+    if(( p = strchr(p, ':')) == NULL)
+        return -1;
+    len = p - &str[0];
+    memcpy(tmp, str, len - 1);
+    sscanf(tmp, "%d", &val); /*TODO: check if > 0*/
+    motor->min_power = val;
+    p += len + 1;
+    memset(tmp, 0, 5);
+    if((p = strchr(p, ':')) == NULL)
+        return -1;
+    len = p - &str[0];
+    memcpy(tmp,str, len - 1);
+    sscanf(tmp,"%d",&val); /*TODO: check if > 0*/
+    motor->max_power = val;
+    p += len + 1;
     sscanf(p,"%d",&val);
     motor->step = val;
+    return 0;
 }
+
 static int decode_motor_opts(char *str, motor_opts_t *motor)
 {
     char *p = str;
@@ -66,12 +66,10 @@ static int decode_motor_opts(char *str, motor_opts_t *motor)
         }
 
     }
-    if(isok == NUM_MOTOR_OPTS)
+    if(isok == NUM_MOTOR_OPTS) /*All options are OK*/
         return 0;
-    else
+    else         /*Sad case: Some important options are missing :-(*/
         return -1;
-
-
 }
 
 int decode_options(char *str, app_options_t *opts)
@@ -79,13 +77,11 @@ int decode_options(char *str, app_options_t *opts)
     int sz;
     motor_opts_t motor;
     memset(&motor, 0 , sizeof(motor_opts_t));
-
     sz = decode_motor_opts(str, &motor);
-
     if(sz < 0)
     {
-        perror("failed to decode str");
+        perror("failed to decode options string");
         return -1;
     }
-
+    return 0;
 }
