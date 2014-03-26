@@ -14,8 +14,8 @@ int main(int argc, char **argv)
     int rc;
     int conn_status = 0; /***/
 
-    bt_packet_t incoming[MAX_REQ];
-    bt_packet_t outgoing[MAX_REQ];
+    bt_packet_t incoming[1];
+    bt_packet_t outgoing[1];
 
     bt_device_t *devices[MAX_BT_DEVICES];
 
@@ -31,12 +31,12 @@ int main(int argc, char **argv)
     }
 
     /*TODO:URGENT !!!  pick one of the bluetooth devices and initiate a connection*/
-   rc =  bt_connect_device(&bt_server_sock, &devices[0]->device_addr);
-   if(rc < 0)
-   {
-	   perror("server: failed to connect to bluetooth device");
-	   return -1;
-   }
+    rc =  bt_connect_device(&bt_server_sock, &devices[0]->device_addr);
+    if(rc < 0)
+    {
+        perror("server: failed to connect to bluetooth device");
+        return -1;
+    }
 
     /*Start server*/
     rc = controller_init(&server_sock);

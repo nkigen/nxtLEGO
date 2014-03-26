@@ -15,7 +15,7 @@ int bt_start_server(int *s_sock)
 
     if( dev_id < 0 || *s_sock < 0)
     {
-        perror("error opening socket\n");
+        perror("server: error opening bt socket\n");
         return -1;
     }
     return dev_id;
@@ -43,11 +43,9 @@ int bt_scan_devices(int dev_id, int s_sock, bt_device_t *devices[MAX_BT_DEVICES]
     char addr[BT_ADDR_LEN] = { 0 };
     char name[BT_NAME_LEN] = { 0 };
     inquiry_info *dev_in_range = NULL;
-
    // if(devices != NULL) /*To prevent a segmentation fault if devices == NULL*/
         //memset(devices, 0, MAX_BT_DEVICES * sizeof(bt_device_t));
     dev_in_range = (inquiry_info *) malloc(sizeof(inquiry_info) * MAX_BT_DEVICES);
-
     inq_res = hci_inquiry( dev_id, MAX_INQUIRY_LEN, MAX_BT_DEVICES, NULL, &dev_in_range, flags);
 
     if( inq_res < 0 )

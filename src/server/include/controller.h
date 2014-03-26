@@ -5,8 +5,8 @@
 #include "server_bt.h"
 
 /*********DEFINES*********/
-#define SERVER_PATH		"/tmp/nxtLEGO/"
-#define MAX_CONNECTIONS 	1
+#define SERVER_PATH		"/tmp/nxtLEGO/" /*Path to the UNIX socket*/
+#define MAX_CONNECTIONS 	1 /*Maximum number of connections allowed to the server*/
 /************GLOBALS*********/
 
 void init_controller(int *server_sock);

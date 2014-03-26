@@ -1,6 +1,5 @@
 #include <stdio.h>
 
-
 #include "kernel.h"
 #include "kernel_id.h"
 #include "ecrobot_interface.h"
@@ -46,6 +45,7 @@ static inline void bt_req_process(bt_req_t *in, bt_req_t *out)
     {
     case SET_MOTOR_POWER:
         nxt_motor_set_speed(port, in->data[VALUE_INDEX], 0);
+	/*TODO: Send ACK to server after speed change*/
         break;
     case GET_MOTOR_COUNT:
         out->data[VALUE_INDEX] = nxt_motor_get_count(port);
@@ -62,6 +62,6 @@ void bt_decode_incoming(bt_packet_t *incoming, bt_packet_t *outgoing)
 
     for( i = 0; i < MAX_REQ; ++i)
     {
-        bt_req_process(&incoming[i].packets[0], &outgoing[i].packets[0]);
+        bt_req_process(&incoming->packets[i], &outgoing->packets[i]);
     }
 }

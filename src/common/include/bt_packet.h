@@ -1,6 +1,7 @@
 #ifndef __BT_PACKET_H__
 #define __BT_PACKET_H__
 #include<stdint.h>
+
 #define MAX_REQ			1 /*Maximum Number of requests send to/from the device. Also the number of 
 				   concurrent requests/responses send/received*/
 #define MAX_NUM_DATA		2 /*Maximum number of data transferred to/from LEGO( size of the data array in bt_req_t*/
@@ -26,7 +27,7 @@
 /******PORT Operations*****/
 #define BT_CLOSE_CONNECTION	0 /*Close Bluetooth Connection*/
 #define SET_MOTOR_POWER		1 /*Set Motor power*/
-#define GET_MOTOR_COUNT		2 /*Get the number of "rotations" of the motor*/
+#define GET_MOTOR_POWER		2 /*Get the number of "rotations" of the motor*/
 
 
 
@@ -36,12 +37,11 @@
  * to be performed by the Lego Brick
  */
  typedef struct {
-
     uint8_t operation;/*Operation to be performed*/
     uint8_t port; /**/
     float data[MAX_NUM_DATA];
 
-}  bt_req_t;
+} __attribute__((packed)) bt_req_t;
 
 
 /*
@@ -49,11 +49,9 @@
  */
 
 typedef struct {
-
     uint32_t size; /*size of the packet (Always equal to MAX_REQ */
     bt_req_t packets[MAX_REQ];
-
-} bt_packet_t;
+} __attribute__((packed)) bt_packet_t;
 
 #endif
 

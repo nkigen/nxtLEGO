@@ -11,8 +11,8 @@
 /*************GLOBAL VARIABLES**********/
 uint32_t timestamp;
 uint32_t bt_conn_status;
-bt_packet_t incoming_packet[MAX_REQ];
-bt_packet_t outgoing_packet[MAX_REQ];
+bt_packet_t incoming_packet[1];
+bt_packet_t outgoing_packet[1];
 
 #define DEVICE_PWD "1234"
 
@@ -80,12 +80,12 @@ void user_1ms_isr_type2(void)
 TASK(BtComm)
 {
 
-    bt_conn_status = ecrobot_read_bt_packet( incoming_packet, sizeof(bt_packet_t) * MAX_REQ);
+    bt_conn_status = ecrobot_read_bt_packet((U8*)incoming_packet, sizeof(bt_packet_t));
 
     if( bt_conn_status > 0)
     {
         bt_decode_incoming(incoming_packet, outgoing_packet);
-        ecrobot_send_bt((void *)outgoing_packet, 0,sizeof(bt_packet_t) * MAX_REQ);
+        ecrobot_send_bt_packet((void *)outgoing_packet, (U32)sizeof(bt_packet_t));
     }
     TerminateTask();
 }

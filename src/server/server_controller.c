@@ -69,7 +69,7 @@ int controller_accept_conn(int *server_sock, int *client_sock)
         return -1;
     }
 
-    len = sizeof(bt_packet_t) * MAX_REQ;
+    len = sizeof(bt_packet_t);
     rc = setsockopt(*client_sock, SOL_SOCKET, SO_RCVLOWAT,(char *) &len, sizeof(len));
     if(rc < 0)
     {
@@ -83,7 +83,7 @@ int controller_accept_conn(int *server_sock, int *client_sock)
 int controller_process_req(bt_packet_t *in, bt_packet_t *out,int *client_sock, int *bt_sock)
 {
     int rc, len;
-    len = sizeof(bt_packet_t) * MAX_REQ;
+    len = sizeof(bt_packet_t);
 
     rc = recv(*client_sock, in, len, 0);
     if(rc < 0)
@@ -97,6 +97,7 @@ int controller_process_req(bt_packet_t *in, bt_packet_t *out,int *client_sock, i
         return -1;
     }
 
+    /*TODO: cater for when in->size > 1*/
     if( (int)in->packets[0].data[VALUE_INDEX] != BT_CLOSE_CONNECTION)
     {
         server_client_bt(in,out,bt_sock); /*TODO: process return value*/

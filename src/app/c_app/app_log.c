@@ -1,9 +1,7 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "include/app_log.h"
-
 
 FILE *fp;
 /*open the file */
@@ -22,6 +20,7 @@ int log_motor_packet(int power, bt_packet_t *p)
     return fprintf(fp, "%f  %d %d\n", p->packets[0].data[TIMESTAMP_INDEX],(int) p->packets[0].data[VALUE_INDEX], power);
 
 }
+
 int end_log()
 {
     return fclose(fp);

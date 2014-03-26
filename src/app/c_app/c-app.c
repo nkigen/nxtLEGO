@@ -1,17 +1,16 @@
-
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+
 #include "include/c-app.h"
 #include "include/app_log.h"
 
-#define LOG_FILE		"c_app_log.dat"
-#define DELAY_5_SECONDS()		delay(5000)
-#define ZERO_MOTOR_POWER(pkt,port)   	bt_packeyt_set_motor_power\
-					(pkt, port, 0)	
+#define LOG_FILE			"c_app_log.dat"
+#define DELAY_5_SECONDS()		 delay(5000)
+#define ZERO_MOTOR_POWER(pkt,port)   	 bt_packet_set_motor_power(pkt, port, 0)	
 /*******GLOBAL VARIABLES***********/
 app_options_t options;
 
@@ -68,13 +67,13 @@ int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, int 
     int rc;
     int power;
     int len;
-    bt_packet_t motor_count[MAX_REQ];
+    bt_packet_t motor_count[1];
 
-    len =  sizeof(bt_packet_t) * MAX_REQ;
+    len =  sizeof(bt_packet_t);
     power = req->packets[0].data[VALUE_INDEX];
-    memset(motor_count, 0, sizeof(bt_packet_t));
+    memset(motor_count, 0, len);
     /*Send motor count req to server*/
-    rc = send(c_sock, req, sizeof(bt_packet_t), 0);
+    rc = send(c_sock, req, len, 0);
     if(rc < 0)
     {
         perror("failed to send motor packet");
@@ -92,7 +91,7 @@ int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, int 
     /**/
     do {
 
-        rc = send(c_sock, req, sizeof(bt_packet_t), 0);
+        rc = send(c_sock, req, len, 0);
         if(rc < 0)
         {
             perror("failed to send motor fetch  packet");
@@ -120,8 +119,8 @@ int motor_handler(int c_sock, motor_opts_t *motor)
     int power;
     int _stop = 0;
     int last = motor->max_power;
-    bt_packet_t request[MAX_REQ];
-    bt_packet_t response[MAX_REQ];
+    bt_packet_t request[1];
+    bt_packet_t response[1];
     if(! motor->num_samples)/*Nothing to do !!*/
         return 0;
 

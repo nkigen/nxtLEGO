@@ -31,7 +31,7 @@ typedef struct {
     int8_t min_power;
     int8_t max_power;
     uint8_t step;
-    uint8_t num_samples
+    uint8_t num_samples;
 } motor_opts_t;
 
 /*
