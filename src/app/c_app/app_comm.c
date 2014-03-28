@@ -26,7 +26,7 @@ int app_init_comm(int *c_sock)
     memset(&addr, 0, sizeof(struct sockaddr));
     addr.sun_family = AF_UNIX;
     strcpy(addr.sun_path, SERVER_PATH);
-
+printf("c-app: PATH %s\n",addr.sun_path);
     rc = connect(sd, (struct sockaddr *)&addr, sizeof(struct sockaddr));
     if(rc < 0)
     {

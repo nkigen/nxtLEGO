@@ -23,15 +23,34 @@ int bt_start_server(int *s_sock)
 
 int bt_connect_device(int *c_sock, bdaddr_t *c_addr)
 {
+    char str[19] = { 0 };
+    ba2str(c_addr, str);
+	printf("server: connecting to bluetooth device %s...\n", str);
     struct sockaddr_rc addr = { 0 };
 
     *c_sock = socket ( AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
-
+     if(*c_sock < 0)
+     {
+	     perror("server: failed to create bt socket..\n");
+	     return -1;
+     }
+     else
+	     printf("server: BT socket created successfully using socket %d...\n",*c_sock);
     addr.rc_family = AF_BLUETOOTH;
     addr.rc_channel = (uint8_t)1;
-    addr.rc_bdaddr = *c_addr;
-
-    return  connect(*c_sock, (struct sockaddr*)&addr,sizeof(struct sockaddr));
+    printf("server: ok\n");
+    //memcpy(&addr.rc_bdaddr, c_addr, sizeof( bdaddr_t));
+    str2ba(str, &addr.rc_bdaddr);
+    printf("server: copied successfully\n");
+    int rc =  connect(*c_sock, (struct sockaddr*)&addr,sizeof(addr));
+    if(rc < 0)
+    {
+	    perror("server: failed to connect to BT socket");
+	    return -1;
+    }
+    else
+	    printf("server: connected to BT socket\n");
+    return 0;
 
 }
 

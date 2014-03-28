@@ -46,6 +46,7 @@ int start_app(char *buf, int size, int *c_sock)
 {
     int rc;
     init_log(LOG_FILE);/*open the log file*/
+    printf("Input file %s\n", buf);
     rc = decode_options(buf, &options);
     if( rc < 0)
     {

@@ -11,9 +11,9 @@ static inline void agv2Buffer(char **argv, int argc, char *buff)
 {
     int i = 0;
     char *p = buff;
-    for( i=0; i < argc; ++i)
+    for( i=1; i < argc; ++i)
     {
-        strcpy(p,argv[i]);
+        strcpy(p, argv[i]);
         p += strlen(argv[i]);
         *p = ' ';
         ++p;

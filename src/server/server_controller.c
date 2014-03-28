@@ -20,6 +20,8 @@ int controller_init(int *server_sock)
         perror("Cannot create server socket\n");
         return -1;
     }
+    else
+	    printf("server: socket created\n");
 
     memset(&addr, 0, sizeof(struct sockaddr_un));
 
@@ -27,12 +29,15 @@ int controller_init(int *server_sock)
     strcpy(addr.sun_path, SERVER_PATH);
 
     /*** bind server to socket ***/
+    unlink(SERVER_PATH);
     rc = bind(*server_sock, (struct sockaddr *)&addr, SUN_LEN(&addr));
     if(rc < 0)
     {
         perror("failed to bind server\n");
         return -1;
     }
+    else
+	    printf("Server socket bound successfully\n");
 
     rc = listen(*server_sock, MAX_CONNECTIONS);
 
@@ -50,9 +55,11 @@ int controller_init_bt_conn( int *bt_server, bt_device_t *devices[MAX_BT_DEVICES
     ret = bt_start_server(bt_server);
     if(ret < 0)
     {
-        perror("Failed to start bt_server");
+        perror("server:Failed to start bt_server");
         return -1;
     }
+    else
+	    printf("server: bt server started\n");
 
     bt_scan_devices(ret, *bt_server, devices);
     return 0;

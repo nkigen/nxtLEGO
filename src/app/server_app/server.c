@@ -29,6 +29,8 @@ int main(int argc, char **argv)
         perror("server: failed to initialize bluetooth connection");
         return -1;
     }
+    else
+        printf("server: initialized bluetooth\n");
 
     /*TODO:URGENT !!!  pick one of the bluetooth devices and initiate a connection*/
     rc =  bt_connect_device(&bt_server_sock, &devices[0]->device_addr);
@@ -37,17 +39,23 @@ int main(int argc, char **argv)
         perror("server: failed to connect to bluetooth device");
         return -1;
     }
+    else
+        printf("server:connected to bluetooth device %s\n", devices[0]->device_addr);
 
     /*Start server*/
+    printf("server: starting server....\n");
     rc = controller_init(&server_sock);
     if(rc < 0)
     {
         perror("server: failed to initialize");
         return -1;
     }
+    else
+        printf("server: initilization complete....\n");
 
     /*wait for connections*/
     do {
+        printf("server: waiting for connection...\n");
         rc = controller_accept_conn(&server_sock, &client_sock);
         if( rc < 0)
         {
@@ -55,11 +63,14 @@ int main(int argc, char **argv)
         }
         else
         {
+            printf("server: connection accepted...\n");
             rc = controller_process_req(incoming, outgoing, &client_sock, &bt_sock);
             if( rc < 0)
             {
                 perror("server: error processing request");
             }
+            else
+                printf("error processing request..\n");
 
             if(rc == 1)/*connection has been terminated*/
                 conn_status = rc;
