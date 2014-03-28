@@ -5,8 +5,8 @@
 #include "server_bt.h"
 
 /*********DEFINES*********/
-#define SERVER_PATH		"/home/nkigen/NXT/nxtLEGO/comms" /*Path to the UNIX socket*/
-//#define SERVER_PATH		"/home/ubuntu/nxtLEGO/commq" /*Path to the UNIX socket*/
+//#define SERVER_PATH		"/home/nkigen/NXT/nxtLEGO/comms" /*Path to the UNIX socket*/
+#define SERVER_PATH		"comm_test" /*Path to the UNIX socket*/
 #define MAX_CONNECTIONS 	1 /*Maximum number of connections allowed to the server*/
 /************GLOBALS*********/
 

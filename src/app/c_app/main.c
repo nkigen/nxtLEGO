@@ -25,14 +25,17 @@ int main(int argc, char **argv)
     int c_sock;/*client socket*/
     int rc;
     char buf[BUFFER_SIZE];
+    motor_opts_t motor;
     agv2Buffer(argv, argc, buf);
 /*Decode argv and init connection to server*/
     rc = start_app(buf, BUFFER_SIZE, &c_sock);
     if(rc < 0)
     {
-	    perror("Failed to start c-app");
+	    perror("client: Failed to start c-app");
 	    return -1;
     }
+    else
+	    printf("c-app: client app start-up complete\n");
     /*Prepare bt_packets to send with data from app_options_t
      * For now prepare only motor opts*/
     comm_handler(c_sock);

@@ -6,6 +6,7 @@
 
 int server_client_bt(bt_packet_t *in_packet,bt_packet_t *out_packet, int *bt_sock)
 {
+	printf("Trying to send BT packet to %d\n", *bt_sock);
     int res;
     int len = sizeof(bt_packet_t);
     res = send( *bt_sock, in_packet, len, 0);
