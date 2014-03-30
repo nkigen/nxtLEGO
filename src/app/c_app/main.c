@@ -20,8 +20,17 @@ static inline void agv2Buffer(char **argv, int argc, char *buff)
     }
 }
 
+/*
+ * clean-up function
+ * */
+void on_terminate()
+{
+/*TODO:*/
+}
+
 int main(int argc, char **argv)
 {
+	atext(on_terminate);
     int c_sock;/*client socket*/
     int rc;
     char buf[BUFFER_SIZE];

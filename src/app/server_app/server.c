@@ -3,8 +3,21 @@
 
 #include "../../server/include/controller.h"
 
+
+/*
+ * Function to close all open sockets and cleanup
+ * Whenever the program terminates*/
+
+void on_terminate()
+{
+/*TODO:add this*/
+    controller_stop(server_sock, client_sock);
+    controller_bt_stop(bt_server_sock, bt_sock);
+}
 int main(int argc, char **argv)
 {
+	/*register on_terminate*/
+	atext(on_terminate);
     int server_sock;
     int client_sock;
 
@@ -76,7 +89,5 @@ int main(int argc, char **argv)
     } while(!conn_status);
 
     /*close connections*/
-    controller_stop(server_sock, client_sock);
-    controller_bt_stop(bt_server_sock, bt_sock);
     return 0;
 }
