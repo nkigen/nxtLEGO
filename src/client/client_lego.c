@@ -85,7 +85,7 @@ TASK(BtComm)
     if( bt_conn_status > 0)
     {
         bt_decode_incoming(incoming_packet, outgoing_packet);
-        bt_send((void *)outgoing_packet, (U32)sizeof(bt_packet_t));
+        bt_send(outgoing_packet, sizeof(bt_packet_t));
     }
     TerminateTask();
 }

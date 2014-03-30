@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     rc =  bt_connect_device(&bt_sock, &devices[0]->device_addr);
     if(rc < 0)
     {
-        perror("server: failed to connect to bluetooth device");
+        perror("server: failed to Connect to bluetooth device");
         return -1;
     }
 

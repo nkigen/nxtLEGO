@@ -33,6 +33,7 @@ static inline void bt_decode_port(uint8_t *in_port,uint8_t *out_port)
         *out_port = NXT_PORT_S4;
         break;
     default:   /*TODO: Grave mistake if in_port ever lands here!!*/
+*out_port = NXT_PORT_B;
         break;
     }
 }
