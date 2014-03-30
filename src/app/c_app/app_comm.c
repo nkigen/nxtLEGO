@@ -27,16 +27,15 @@ int app_init_comm(int *c_sock)
     memset(&addr, 0, sizeof(struct sockaddr_un));
     addr.sun_family = AF_UNIX;
     strcpy(addr.sun_path, SERVER_PATH);
-printf("c-app: PATH %s\n",addr.sun_path);
+    printf("c-app: PATH %s\n",addr.sun_path);
     rc = connect(sd, (struct sockaddr *)&addr, sizeof(struct sockaddr_un));
     if(rc < 0)
     {
-        //perror("c-app: connect failed");
-	printf("c-app: connect() failed: error: %s\n",strerror(errno));
+        perror("c-app: connect failed");
         return -1;
     }
-    else 
-	    printf("c-app: connection succeeded\n");
+    else
+        printf("c-app: connection succeeded\n");
 
     len = sizeof(bt_packet_t);
     rc = setsockopt(sd, SOL_SOCKET, SO_RCVLOWAT, (char *)&len, sizeof(len));
@@ -46,7 +45,7 @@ printf("c-app: PATH %s\n",addr.sun_path);
         return -1;
     }
     else
-	    printf("c-app: setsocketopt succeeded\n");
+        printf("c-app: setsocketopt succeeded\n");
     return 0;
 }
 
@@ -56,7 +55,7 @@ int app_terminate_comm(int c_sock)
     int len;
     bt_packet_t pkt[1];
     memset(pkt, 0, sizeof(bt_packet_t));
-/*TODO: This should be wrong :-(*/
+    /*TODO: This should be wrong :-(*/
     pkt->packets[0].operation = BT_CLOSE_CONNECTION;
 
     len = sizeof(bt_packet_t);
