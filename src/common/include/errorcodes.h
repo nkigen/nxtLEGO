@@ -1,0 +1,7 @@
+#ifndef __ERRORCODES_H__
+#define __ERRORCODES_H__
+/*
+ * DEFINES APPLICATION ERROR CODES AND A BITMAP TO HOLD THEM*/
+
+
+#endif
