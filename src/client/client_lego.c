@@ -14,6 +14,7 @@ uint32_t bt_conn_status;
 bt_packet_t incoming_packet[1];
 bt_packet_t outgoing_packet[1];
 
+char disp_str[3];
 #define DEVICE_PWD "1234"
 
 /******OSEK Declarations******/
@@ -76,7 +77,6 @@ void user_1ms_isr_type2(void)
 }
 
 
-
 TASK(BtComm)
 {
 
@@ -85,7 +85,7 @@ TASK(BtComm)
     if( bt_conn_status > 0)
     {
         bt_decode_incoming(incoming_packet, outgoing_packet);
-        bt_send(outgoing_packet, sizeof(bt_packet_t));
+        bt_send((U8*)outgoing_packet, sizeof(bt_packet_t));
     }
     TerminateTask();
 }
@@ -93,6 +93,17 @@ TASK(BtComm)
 
 TASK(DisplayTask)
 {
-    ecrobot_status_monitor("nxtLEGO client");
+    //ecrobot_status_monitor("nxtLEGO client");
+    display_clear(1);
+    display_goto_xy(0,0);
+    display_string("nxtLEGO client");
+    display_goto_xy(0,1);
+    display_string("incoming:");
+    display_goto_xy(0,2);
+    display_string("PORT:");
+    display_goto_xy(7,2);
+    sprintf(disp_str,"%d",incoming_packet->packets[0].port);
+    display_string(disp_str);
+
     TerminateTask();
 }
