@@ -14,7 +14,7 @@ uint32_t bt_conn_status;
 bt_packet_t incoming_packet[1];
 bt_packet_t outgoing_packet[1];
 
-char disp_str[3];
+char disp_str[8];
 #define DEVICE_PWD "1234"
 
 /******OSEK Declarations******/
@@ -84,8 +84,8 @@ TASK(BtComm)
 
     if( bt_conn_status > 0)
     {
-        bt_decode_incoming(incoming_packet, outgoing_packet);
-        bt_send((U8*)outgoing_packet, sizeof(bt_packet_t));
+        bt_decode_incoming((U8*)incoming_packet,(U8*) outgoing_packet);
+        bt_send((U8*)outgoing_packet, (U32)sizeof(bt_packet_t));
     }
     TerminateTask();
 }
@@ -95,15 +95,15 @@ TASK(DisplayTask)
 {
     //ecrobot_status_monitor("nxtLEGO client");
     display_clear(1);
-    display_goto_xy(0,0);
+    display_goto_xy(1,0);
     display_string("nxtLEGO client");
     display_goto_xy(0,1);
-    display_string("incoming:");
-    display_goto_xy(0,2);
-    display_string("PORT:");
-    display_goto_xy(7,2);
-    sprintf(disp_str,"%d",incoming_packet->packets[0].port);
+    display_string("timestamp:");
+    display_goto_xy(11,1);
+    sprintf(disp_str,"%d",timestamp);
     display_string(disp_str);
+    //display_string("PORT:");
+    //display_goto_xy(7,2);
 
     TerminateTask();
 }
