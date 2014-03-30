@@ -44,11 +44,14 @@ static inline void bt_req_process(bt_req_t *in, bt_req_t *out)
     switch(in->operation)
     {
     case SET_MOTOR_POWER:
-        nxt_motor_set_speed(port, in->data[VALUE_INDEX], 0);
+        nxt_motor_set_speed(port,(int) in->data[VALUE_INDEX],0);
+	
 	/*TODO: Send ACK to server after speed change*/
+      out->data[VALUE_INDEX] = in->data[VALUE_INDEX];
+   out->port = 6;
         break;
     case GET_MOTOR_COUNT:
-        out->data[VALUE_INDEX] = nxt_motor_get_count(port);
+        out->data[VALUE_INDEX] = (float)ecrobot_get_motor_rev(port);
         out->data[TIMESTAMP_INDEX] = timestamp;
         break;
     default:
@@ -58,10 +61,10 @@ static inline void bt_req_process(bt_req_t *in, bt_req_t *out)
 
 void bt_decode_incoming(bt_packet_t *incoming, bt_packet_t *outgoing)
 {
-    int i;
+    int i=0;
 
-    for( i = 0; i < MAX_REQ; ++i)
-    {
+    //for( i = 0; i < MAX_REQ; ++i)
+    //{
         bt_req_process(&incoming->packets[i], &outgoing->packets[i]);
-    }
+    //}
 }

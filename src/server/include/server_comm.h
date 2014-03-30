@@ -2,6 +2,7 @@
 #define __SERVER_COMM_H__
 
 #include "../../common/include/bt_packet.h"
+#include "../../common/include/device_operations.h"
 
 /*
  * send Data to LEGO 

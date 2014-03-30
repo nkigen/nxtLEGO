@@ -2,12 +2,13 @@
 #define __CONTROLLER_H__
 #include <stdint.h>
 #include "../../common/include/bt_packet.h"
+#include "../../common/include/device_operations.h"
 #include "server_bt.h"
 
 /*********DEFINES*********/
-#define SERVER_PATH		"/home/nkigen/NXT/nxtLEGO/comms" /*Path to the UNIX socket*/
-//#define SERVER_PATH		"/home/ubuntu/nxtLEGO/commq" /*Path to the UNIX socket*/
-#define MAX_CONNECTIONS 	1 /*Maximum number of connections allowed to the server*/
+//#define SERVER_PATH		"/home/nkigen/NXT/nxtLEGO/comms" /*Path to the UNIX socket*/
+#define SERVER_PATH		"comm_test" /*Path to the UNIX socket*/
+#define MAX_CONNECTIONS 	10 /*Maximum number of connections allowed to the server*/
 /************GLOBALS*********/
 
 void init_controller(int *server_sock);

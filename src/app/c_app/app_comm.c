@@ -5,6 +5,7 @@
 #include <sys/un.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include<errno.h>
 
 #include "include/app_comm.h"
 
@@ -23,16 +24,19 @@ int app_init_comm(int *c_sock)
     }
 
     *c_sock = sd;
-    memset(&addr, 0, sizeof(struct sockaddr));
+    memset(&addr, 0, sizeof(struct sockaddr_un));
     addr.sun_family = AF_UNIX;
     strcpy(addr.sun_path, SERVER_PATH);
 printf("c-app: PATH %s\n",addr.sun_path);
-    rc = connect(sd, (struct sockaddr *)&addr, sizeof(struct sockaddr));
+    rc = connect(sd, (struct sockaddr *)&addr, sizeof(struct sockaddr_un));
     if(rc < 0)
     {
-        perror("c-app: connect failed");
+        //perror("c-app: connect failed");
+	printf("c-app: connect() failed: error: %s\n",strerror(errno));
         return -1;
     }
+    else 
+	    printf("c-app: connection succeeded\n");
 
     len = sizeof(bt_packet_t);
     rc = setsockopt(sd, SOL_SOCKET, SO_RCVLOWAT, (char *)&len, sizeof(len));
@@ -41,6 +45,8 @@ printf("c-app: PATH %s\n",addr.sun_path);
         perror("c-app: setsocketopt error");
         return -1;
     }
+    else
+	    printf("c-app: setsocketopt succeeded\n");
     return 0;
 }
 

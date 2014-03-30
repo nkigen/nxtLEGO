@@ -18,12 +18,12 @@ bt_packet_t outgoing_packet[1];
 
 /******OSEK Declarations******/
 
+DeclareCounter(SysTimerCnt);
 DeclareTask(BtComm);
 DeclareTask(DisplayTask);
 DeclareResource(RES_LCD);
 DeclareAlarm(BT_COMM_ALARM);
 DeclareAlarm(LCD_UPDATE_ALARM);
-DeclareCounter(SysTimerCnt);
 
 
 static void reset_data_structs()
@@ -43,11 +43,11 @@ static void reset_motor_power()
 /****Initialize DEVICE*****/
 void ecrobot_device_initialize()
 {
+    ecrobot_init_bt_slave(DEVICE_PWD);
     timestamp = 0;
     bt_conn_status = 0;
     reset_data_structs();
     reset_motor_power();
-    ecrobot_init_bt_slave(DEVICE_PWD);
 }
 
 
@@ -85,7 +85,7 @@ TASK(BtComm)
     if( bt_conn_status > 0)
     {
         bt_decode_incoming(incoming_packet, outgoing_packet);
-        ecrobot_send_bt_packet((void *)outgoing_packet, (U32)sizeof(bt_packet_t));
+        bt_send((void *)outgoing_packet, (U32)sizeof(bt_packet_t));
     }
     TerminateTask();
 }
