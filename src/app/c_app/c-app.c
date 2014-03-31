@@ -73,7 +73,6 @@ int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, int 
 
     len =  sizeof(bt_packet_t);
     power = req->packets[0].data[VALUE_INDEX];
-    memset(motor_count, 0, len);
     /*Send motor count req to server*/
     rc = send(c_sock, req, len, 0);
     if(rc < 0)
