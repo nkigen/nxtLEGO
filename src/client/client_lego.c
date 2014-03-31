@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include<inttypes.h>
 
 #include "include/client_lego.h"
 #include "include/client_req.h"
@@ -80,11 +81,11 @@ void user_1ms_isr_type2(void)
 TASK(BtComm)
 {
 
-    bt_conn_status = ecrobot_read_bt_packet((U8*)incoming_packet, sizeof(bt_packet_t));
+    bt_conn_status = bt_read((U8*)incoming_packet, 0, sizeof(bt_packet_t));
 
     if( bt_conn_status > 0)
     {
-        bt_decode_incoming((U8*)incoming_packet,(U8*) outgoing_packet);
+        bt_decode_incoming(incoming_packet, outgoing_packet);
         bt_send((U8*)outgoing_packet, (U32)sizeof(bt_packet_t));
     }
     TerminateTask();
@@ -100,7 +101,7 @@ TASK(DisplayTask)
     display_goto_xy(0,1);
     display_string("timestamp:");
     display_goto_xy(11,1);
-    sprintf(disp_str,"%d",timestamp);
+    sprintf(disp_str,"%"PRIu32"",timestamp);
     display_string(disp_str);
     //display_string("PORT:");
     //display_goto_xy(7,2);
