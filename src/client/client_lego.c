@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include<inttypes.h>
 
 #include "include/client_lego.h"
 #include "include/client_req.h"
@@ -14,6 +15,7 @@ uint32_t bt_conn_status;
 bt_packet_t incoming_packet[1];
 bt_packet_t outgoing_packet[1];
 
+uint32_t num_packets; /*Number of bt packets received successfully*/
 #define DEVICE_PWD "1234"
 
 /******OSEK Declarations******/
@@ -46,6 +48,7 @@ void ecrobot_device_initialize()
     ecrobot_init_bt_slave(DEVICE_PWD);
     timestamp = 0;
     bt_conn_status = 0;
+    num_packets = 0;
     reset_data_structs();
     reset_motor_power();
 }
@@ -76,16 +79,16 @@ void user_1ms_isr_type2(void)
 }
 
 
-
 TASK(BtComm)
 {
 
-    bt_conn_status = ecrobot_read_bt_packet((U8*)incoming_packet, sizeof(bt_packet_t));
+    bt_conn_status = bt_read((U8*)incoming_packet, 0, sizeof(bt_packet_t));
 
     if( bt_conn_status > 0)
     {
+	    ++num_packets;
         bt_decode_incoming(incoming_packet, outgoing_packet);
-        bt_send(outgoing_packet, sizeof(bt_packet_t));
+        bt_send((U8*)outgoing_packet, (U32)sizeof(bt_packet_t));
     }
     TerminateTask();
 }
@@ -93,6 +96,19 @@ TASK(BtComm)
 
 TASK(DisplayTask)
 {
-    ecrobot_status_monitor("nxtLEGO client");
+   // ecrobot_status_monitor("nxtLEGO client");
+#if 1
+    display_clear(1);
+    display_goto_xy(1,0);
+    display_string("nxtLEGO client");
+    display_goto_xy(0,1);
+    display_string("TS:");
+    display_goto_xy(4,1);
+    display_unsigned(timestamp,8);
+    display_goto_xy(1,2);
+    display_string("Packets:");
+    display_goto_xy(9,2);
+    display_unsigned(num_packets,6);
+#endif
     TerminateTask();
 }

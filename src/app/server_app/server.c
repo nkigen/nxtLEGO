@@ -3,13 +3,26 @@
 
 #include "../../server/include/controller.h"
 
+
+/*
+ * Function to close all open sockets and cleanup
+ * Whenever the program terminates*/
+
+int server_sock;
+int client_sock;
+
+int bt_server_sock; /*Bluetooth server socket*/
+int bt_sock; /*bluetooth connection to LEGO*/
+void on_terminate()
+{
+    /*TODO:add this*/
+    controller_stop(server_sock, client_sock);
+    controller_bt_stop(bt_server_sock, bt_sock);
+}
 int main(int argc, char **argv)
 {
-    int server_sock;
-    int client_sock;
-
-    int bt_server_sock; /*Bluetooth server socket*/
-    int bt_sock; /*bluetooth connection to LEGO*/
+    /*register on_terminate*/
+    atexit(on_terminate);
 
     int rc;
     int conn_status = 0; /***/
@@ -76,7 +89,5 @@ int main(int argc, char **argv)
     } while(!conn_status);
 
     /*close connections*/
-    controller_stop(server_sock, client_sock);
-    controller_bt_stop(bt_server_sock, bt_sock);
     return 0;
 }

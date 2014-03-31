@@ -70,11 +70,9 @@ int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, int 
     int rc;
     int power;
     int len;
-    bt_packet_t motor_count[1];
 
     len =  sizeof(bt_packet_t);
     power = req->packets[0].data[VALUE_INDEX];
-    memset(motor_count, 0, len);
     /*Send motor count req to server*/
     rc = send(c_sock, req, len, 0);
     if(rc < 0)
@@ -94,30 +92,28 @@ int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, int 
     }
     else
 	    printf("c-app: Nothing received from server\n");
-    /*TODO: check rc value but we dont care for now*/
     /*prep packet for reply(num counts)*/
-    memset(req, 0, len);/*reset the req packet*/
     memset(res, 0, len);
 
     printf("c-app: preping GET_MOTOR_COUNT packet\n");
-    bt_packet_get_motor_power(motor_count, req->packets[0].port);/*TODO: modify 0*/
-
+    bt_packet_get_motor_power(req, req->packets[0].port);/*TODO: modify 0*/
     /**/
     do {
-
         rc = send(c_sock, req, len, 0);
         if(rc < 0)
         {
-            perror("failed to send motor fetch  packet");
+            perror("c-app: failed to send motor fetch  packet");
             return -1;
         }
 	else
 		printf("c-app: Get motor count packet send successfully\n");
 
         rc = recv(c_sock, res, len, 0);
+
+	/*on recv erro just ignore the packet and bet your luck on the others*/
         if( rc < 0)
         {
-            perror("error receiving res packet");
+            perror("c-app: error receiving res packet");
         }
         else
         {
@@ -125,8 +121,13 @@ int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, int 
             /*Process the response( Log the values received)*/
             log_motor_packet(power, res);
         }
+	printf("c-app client sleeping for 5 seconds...\n");
+	sleep(5);
+	printf("c-app: client woke up: ready to send again....\n");
 
     } while(i++ < count);
+
+   /*TODO: reset motor power to zero the sleep for sometime before sending a request with a different power*/
     return 0;
 }
 

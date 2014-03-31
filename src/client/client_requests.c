@@ -33,7 +33,6 @@ static inline void bt_decode_port(uint8_t *in_port,uint8_t *out_port)
         *out_port = NXT_PORT_S4;
         break;
     default:   /*TODO: Grave mistake if in_port ever lands here!!*/
-*out_port = NXT_PORT_B;
         break;
     }
 }
@@ -41,18 +40,18 @@ static inline void bt_req_process(bt_req_t *in, bt_req_t *out)
 {
     uint8_t port;
 
+    out->port 	   = in->port;
+    out->operation = in->operation;
+
     bt_decode_port(&in->port,&port);
     switch(in->operation)
     {
     case SET_MOTOR_POWER:
-        nxt_motor_set_speed(port,(int) in->data[VALUE_INDEX],0);
-	
-	/*TODO: Send ACK to server after speed change*/
-      out->data[VALUE_INDEX] = in->data[VALUE_INDEX];
-   out->port = 6;
+        nxt_motor_set_speed(port, in->data[VALUE_INDEX], 1);
+        /*TODO: Send ACK to server after speed change*/
         break;
     case GET_MOTOR_COUNT:
-        out->data[VALUE_INDEX] = (float)ecrobot_get_motor_rev(port);
+        out->data[VALUE_INDEX]     = nxt_motor_get_count(port);
         out->data[TIMESTAMP_INDEX] = timestamp;
         break;
     default:
@@ -62,10 +61,10 @@ static inline void bt_req_process(bt_req_t *in, bt_req_t *out)
 
 void bt_decode_incoming(bt_packet_t *incoming, bt_packet_t *outgoing)
 {
-    int i=0;
-
-    //for( i = 0; i < MAX_REQ; ++i)
-    //{
+    int i;
+/*Currently the only packet is for motor operations(One Motor)*/
+    for( i = 0; i < MAX_REQ; ++i)
+    {
         bt_req_process(&incoming->packets[i], &outgoing->packets[i]);
-    //}
+    }
 }
