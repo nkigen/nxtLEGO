@@ -73,6 +73,7 @@ int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, int 
 
     len =  sizeof(bt_packet_t);
     power = req->packets[0].data[VALUE_INDEX];
+    i = 0;
     /*Send motor count req to server*/
     rc = send(c_sock, req, len, 0);
     if(rc < 0)
@@ -94,11 +95,11 @@ int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, int 
 	    printf("c-app: Nothing received from server\n");
     /*prep packet for reply(num counts)*/
     memset(res, 0, len);
-
     printf("c-app: preping GET_MOTOR_COUNT packet\n");
     bt_packet_get_motor_power(req, req->packets[0].port);/*TODO: modify 0*/
     /**/
     do {
+	    printf("c-app: Sending GET_MOTOR_COUNT to server...\n");
         rc = send(c_sock, req, len, 0);
         if(rc < 0)
         {
@@ -119,11 +120,8 @@ int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, int 
         {
 		printf("c-app: Motor Count Packet received successfully\n");
             /*Process the response( Log the values received)*/
-            log_motor_packet(power, res);
+            log_motor_packet(LOG_FILE,power, res);
         }
-	printf("c-app client sleeping for 5 seconds...\n");
-	sleep(5);
-	printf("c-app: client woke up: ready to send again....\n");
 
     } while(i++ < count);
 

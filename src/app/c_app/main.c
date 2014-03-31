@@ -25,6 +25,7 @@ static inline void agv2Buffer(char **argv, int argc, char *buff)
  * */
 void on_terminate()
 {
+	printf("c-app: terminate function called");
     /*TODO:*/
 }
 
