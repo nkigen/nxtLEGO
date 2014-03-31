@@ -15,7 +15,7 @@ uint32_t bt_conn_status;
 bt_packet_t incoming_packet[1];
 bt_packet_t outgoing_packet[1];
 
-char disp_str[8];
+uint32_t num_packets; /*Number of bt packets received successfully*/
 #define DEVICE_PWD "1234"
 
 /******OSEK Declarations******/
@@ -48,6 +48,7 @@ void ecrobot_device_initialize()
     ecrobot_init_bt_slave(DEVICE_PWD);
     timestamp = 0;
     bt_conn_status = 0;
+    num_packets = 0;
     reset_data_structs();
     reset_motor_power();
 }
@@ -85,6 +86,7 @@ TASK(BtComm)
 
     if( bt_conn_status > 0)
     {
+	    ++num_packets;
         bt_decode_incoming(incoming_packet, outgoing_packet);
         bt_send((U8*)outgoing_packet, (U32)sizeof(bt_packet_t));
     }
@@ -94,17 +96,19 @@ TASK(BtComm)
 
 TASK(DisplayTask)
 {
-    //ecrobot_status_monitor("nxtLEGO client");
+   // ecrobot_status_monitor("nxtLEGO client");
+#if 1
     display_clear(1);
     display_goto_xy(1,0);
     display_string("nxtLEGO client");
     display_goto_xy(0,1);
-    display_string("timestamp:");
-    display_goto_xy(11,1);
-    sprintf(disp_str,"%"PRIu32"",timestamp);
-    display_string(disp_str);
-    //display_string("PORT:");
-    //display_goto_xy(7,2);
-
+    display_string("TS:");
+    display_goto_xy(4,1);
+    display_unsigned(timestamp,8);
+    display_goto_xy(1,2);
+    display_string("Packets:");
+    display_goto_xy(9,2);
+    display_unsigned(num_packets,6);
+#endif
     TerminateTask();
 }
