@@ -121,6 +121,9 @@ int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, int 
             /*Process the response( Log the values received)*/
             log_motor_packet(power, res);
         }
+	printf("c-app client sleeping for 5 seconds...\n");
+	sleep(5);
+	printf("c-app: client woke up: ready to send again....\n");
 
     } while(i++ < count);
 
