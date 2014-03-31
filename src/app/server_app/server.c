@@ -8,6 +8,11 @@
  * Function to close all open sockets and cleanup
  * Whenever the program terminates*/
 
+int server_sock;
+int client_sock;
+
+int bt_server_sock; /*Bluetooth server socket*/
+int bt_sock; /*bluetooth connection to LEGO*/
 void on_terminate()
 {
     /*TODO:add this*/
@@ -18,11 +23,6 @@ int main(int argc, char **argv)
 {
     /*register on_terminate*/
     atexit(on_terminate);
-    int server_sock;
-    int client_sock;
-
-    int bt_server_sock; /*Bluetooth server socket*/
-    int bt_sock; /*bluetooth connection to LEGO*/
 
     int rc;
     int conn_status = 0; /***/
