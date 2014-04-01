@@ -25,7 +25,7 @@
 #define MOTOR_C			7
 
 /******PORT Operations*****/
-#define BT_CLOSE_CONNECTION	0 /*Close Bluetooth Connection*/
+#define BT_CLOSE_CONNECTION	102 /*Close Bluetooth Connection > Should not be within -100:100*/
 #define SET_MOTOR_POWER		1 /*Set Motor power*/
 #define GET_MOTOR_POWER		2 /*Get the number of "rotations" of the motor*/
 

@@ -18,12 +18,11 @@ static int decode_motor_power(char *str, motor_opts_t *motor)
     memcpy(tmp, str, len);
     sscanf(tmp, "%d", &val); /*TODO: check if > 0*/
     motor->min_power = val;
-    p += len;
+    ++p;
     cp = p;
     memset(tmp, 0, 5);
     if((p = strchr(p, ':')) == NULL)
         return -1;
-    len = p - &str[0];
     int sz = p - cp;
     memcpy(tmp, cp , sz);
     cp = p;

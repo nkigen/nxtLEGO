@@ -26,6 +26,7 @@ int main(int argc, char **argv)
 
     int rc;
     int conn_status = 0; /***/
+    int isconn = 0;
 
     bt_packet_t incoming[1];
     bt_packet_t outgoing[1];
@@ -65,27 +66,33 @@ int main(int argc, char **argv)
         printf("server: initilization complete....\n");
 
     /*wait for connections*/
+
+    printf("server: waiting for connection...\n");
+    rc = controller_accept_conn(&server_sock, &client_sock);
+    if( rc < 0)
+    {
+        perror("server: error accepting connection");
+        return -1;
+    }
+    else
+    {
+        printf("server: connection accepted...\n");
+    }
+
     do {
-        printf("server: waiting for connection...\n");
-        rc = controller_accept_conn(&server_sock, &client_sock);
+
+        printf("server: waiting for requests...\n");
+        rc = controller_process_req(incoming, outgoing, &client_sock, &bt_sock);
         if( rc < 0)
         {
-            perror("server: error accepting connection");
+            perror("server: error processing request");
         }
         else
-        {
-            printf("server: connection accepted...\n");
-            rc = controller_process_req(incoming, outgoing, &client_sock, &bt_sock);
-            if( rc < 0)
-            {
-                perror("server: error processing request");
-            }
-            else
-                printf("server: request processed..\n");
+            printf("server: request processed..\n");
 
-            if(rc == 1)/*connection has been terminated*/
-                conn_status = rc;
-        }
+        if(rc == 1)/*connection has been terminated*/
+            conn_status = rc;
+
     } while(!conn_status);
 
     /*close connections*/
