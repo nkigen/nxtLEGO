@@ -9,8 +9,7 @@
 #include "include/app_log.h"
 
 #define LOG_FILE			"c_app_log.dat"
-#define DELAY_5_SECONDS()		 delay(5000)
-#define ZERO_MOTOR_POWER(pkt,port)   	 bt_packet_set_motor_power(pkt, port, 0)
+
 /*******GLOBAL VARIABLES***********/
 app_options_t options;
 
@@ -120,10 +119,11 @@ int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, int 
         {
             printf("c-app: Motor Count Packet received successfully\n");
             /*Process the response( Log the values received)*/
-            log_motor_packet(LOG_FILE,power, res);
+            if(count > 1)
+                log_motor_packet(LOG_FILE,power, res);
         }
 
-    } while(i++ < count);
+    } while(++i < count);
 
     /*TODO: reset motor power to zero the sleep for sometime before sending a request with a different power*/
     return 0;
@@ -144,7 +144,7 @@ int motor_handler(int c_sock, motor_opts_t *motor)
     }
 
     do {
-printf("c-app: motor_handler loop %d\n",i);
+//printf("c-app: motor_handler loop %d\n",i);
         power = get_next_motor_power(motor);
         if(power == last)
             _stop = 1;
@@ -152,7 +152,14 @@ printf("c-app: motor_handler loop %d\n",i);
         bt_packet_set_motor_power(request,motor->port, power); /*Prep packet for setting motor power*/
         handler_get_motor_count(c_sock, request, response, motor->num_samples);/*get and log the motor revs*/
 
+        /*Reset Motor to zero and pause for 3 seconds before changing the power value*/
+        bt_packet_set_motor_power(request,motor->port,0);
+        handler_get_motor_count(c_sock, request, response, 1);
+        sleep(3);
     } while( !_stop);
+    /*Now send the BT_END_CONNECTION to terminate the server*/
+    bt_packet_set_motor_power(request,motor->port, BT_CLOSE_CONNECTION);
+    handler_get_motor_count(c_sock, request, response, 1);
     return 1;
 }
 /*TODO: Get a better name for this function!!!*/
