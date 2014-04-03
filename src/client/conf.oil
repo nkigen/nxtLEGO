@@ -1,4 +1,3 @@
-
 #include "implementation.oil"
 
 CPU ATMEL_AT91SAM7S256

@@ -119,7 +119,7 @@ int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, int 
         {
             printf("c-app: Motor Count Packet received successfully\n");
             /*Process the response( Log the values received)*/
-            if(count > 1)
+            if(count > 1 && power > 0)
                 log_motor_packet(LOG_FILE,power, res);
         }
 

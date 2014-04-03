@@ -52,7 +52,8 @@ static inline void bt_req_process(bt_req_t *in, bt_req_t *out)
         break;
     case GET_MOTOR_COUNT:
         out->data[VALUE_INDEX]     = nxt_motor_get_count(port);
-        out->data[TIMESTAMP_INDEX] = timestamp;
+    //    out->data[TIMESTAMP_INDEX] = timestamp;
+          out->data[TIMESTAMP_INDEX] = systick_get_ms();
         break;
     default:
         break;
