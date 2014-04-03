@@ -66,13 +66,14 @@ void ecrobot_device_terminate()
 void user_1ms_isr_type2(void)
 {
     StatusType ercd;
-    /*check value of timestamp to prevent an overflow
+#if 0
+	  /*check value of timestamp to prevent an overflow
      * if maximum value is reached reset it to 0*/
     if(unlikely (timestamp == (uintmax_t) UINT32_MAX))
         timestamp = 0;
     else
         ++timestamp;
-
+#endif
     ercd = SignalCounter(SysTimerCnt);
     if(ercd != E_OK)
         ShutdownOS(ercd);
@@ -103,8 +104,10 @@ TASK(DisplayTask)
     display_string("nxtLEGO client");
     display_goto_xy(0,1);
     display_string("TS:");
+#if 0
     display_goto_xy(4,1);
     display_unsigned(timestamp,8);
+#endif
     display_goto_xy(1,2);
     display_string("Packets:");
     display_goto_xy(9,2);
