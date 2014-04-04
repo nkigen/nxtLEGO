@@ -9,6 +9,7 @@ N = 4; //Moving Average window
 
     function [mvdata]=MovingAverage(mdata)
         dta = zeros(length(mdata));
+        
     endfunction
 
 fd = mopen(fname,'r');
@@ -27,7 +28,7 @@ while isEOF <> 1
         mdata(pos,2) = i; //change i to ts to get the real timestamp from the lego
         mdata(pos,3) = pv;
         pos = pos + 1;
-        i = i + 2;
+        i = i + 1;
     else
         isEOF = 1;
     end

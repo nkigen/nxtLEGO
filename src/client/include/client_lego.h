@@ -11,7 +11,7 @@
 
 
 
-extern uint32_t timestamp;
+//extern uint32_t timestamp;
 
 
 #endif
