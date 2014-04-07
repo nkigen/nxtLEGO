@@ -1,7 +1,16 @@
-clear;
-fname = '../data/90.dat';
+global fname;// = '../data/90.dat';
+global imgname;
+global DATA_PATH;
+global IMAGES_PATH;
+
+global CURRENT_POWER;
+global st_est; //settling time
+global omega_est; //omega_est
+global OverShoot; //overshoot
+
 LpAlpha = 0.575; //Alpha value for filter
 sAlpha = 0.1; //Settling time alpha (10%)
+global StepValue;
 StepValue = 0.01;  
 
 N = 20; //Moving Average Window
@@ -60,6 +69,7 @@ end
 mclose(fd);
 
 //Sanitize the timestamp to start from 0
+CURRENT_POWER=mdata(1,3);
 if mdata(1,2) <> 0 then
     ts = mdata(1,2);
     for i=1:length(mdata(:,2))
@@ -91,6 +101,7 @@ end
 hf = scf(1);
 clf(hf,'clear');
 plot(t,avg,'b');
+xs2png(hf, imgname+'_original.png');
 
 //Apply LowPassFilter
 fdata=ExponentialFilter(LpAlpha,avg);
@@ -98,7 +109,7 @@ fdata=ExponentialFilter(LpAlpha,avg);
 //plot filtered data
  hf = scf(1);
  plot(t,fdata,'r--');
- 
+ xs2png(hf, imgname+'_orig+filtered.png');
 
 //Tachometer estimation
 y = zeros(1,length(t));
@@ -146,9 +157,8 @@ st_est = t(_index) + StepValue/2;
 Nb = 1/sqrt(1 - xi_est^2);
 omega_est = (log(sAlpha) - log(Nb))/(-xi_est*st_est);
 
-scf(2);
+hf = scf(2);
 plot([st_est,st_est],[min(y),max(y)],'g--');
 plot(t, YMTs*ones(1,size(t,2)), 'r--');
 plot(t, YmTs*ones(1,size(t,2)), 'r--');
-
-
+xs2png(hf, imgname+'_tachometer.png');
