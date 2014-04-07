@@ -33,7 +33,7 @@ static int decode_motor_power(char *str, motor_opts_t *motor)
     motor->step = val;
     return 0;
 }
-
+/*TODO: Seems not to decode -n >1000 well */
 static int decode_motor_opts(char *str, motor_opts_t *motor)
 {
     char *p = str;

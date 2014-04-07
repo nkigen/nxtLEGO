@@ -167,3 +167,9 @@ int comm_handler(int c_sock)
 {
     motor_handler(c_sock, &options.motor);
 }
+
+/*TODO: Implement this*/
+int close_app()
+{
+
+}
