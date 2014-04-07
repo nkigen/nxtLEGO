@@ -1,6 +1,6 @@
 clear;
-fname = '../data/60.dat';
-LpAlpha = 0.775; //Alpha value for filter
+fname = '../data/90.dat';
+LpAlpha = 0.575; //Alpha value for filter
 sAlpha = 0.1; //Settling time alpha (10%)
 StepValue = 0.01;  
 
