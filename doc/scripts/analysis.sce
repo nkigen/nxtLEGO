@@ -1,10 +1,12 @@
-global fname;// = '../data/90.dat';
+global fname;// 
 global imgname;
 global DATA_PATH;
 global IMAGES_PATH;
 
 global CURRENT_POWER;
 global st_est; //settling time
+global xi_est;
+global q_n;
 global omega_est; //omega_est
 global OverShoot; //overshoot
 
@@ -113,7 +115,7 @@ fdata=ExponentialFilter(LpAlpha,avg);
 
 //Tachometer estimation
 y = zeros(1,length(t));
-MaxCount = round(length(t)/2);
+MaxCount = round(length(t)/3);
 //MaxCount = 50;
 for i=2:length(fdata)
     if i <= MaxCount
@@ -153,6 +155,7 @@ end
 
 st_est = t(_index) + StepValue/2;
 
+q_n = st_est;
 //omega_est
 Nb = 1/sqrt(1 - xi_est^2);
 omega_est = (log(sAlpha) - log(Nb))/(-xi_est*st_est);

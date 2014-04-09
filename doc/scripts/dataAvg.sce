@@ -3,8 +3,8 @@ clear;
 
 //Open and read file
 //names = ['../data/motor_100.dat','../data/motor_100n.dat','../data/motor_100nn.dat','../data/motor_100nnn.dat','../data/motor_100nnnn.dat'];
-names = ['../data/motor_90.dat','../data/motor_90n.dat','../data/motor_90nn.dat','../data/motor_90nnn.dat','../data/motor_90nnnn.dat'];
-outname = '../data/90.dat';
+names = ['../data/verification/motor_100.dat','../data/verification/motor_100n.dat','../data/verification/motor_100nn.dat','../data/verification/motor_100nnn.dat','../data/verification/motor_100nnnn.dat'];
+outname = '../data/verification/100.dat';
 m = 1;
 mavg = [];
 isFirst = 1;

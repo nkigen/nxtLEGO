@@ -1,23 +1,11 @@
 //used to verify the model params
 global omega_n;
-global xi_n;
-global q_n;
-global g_n; //
-global DATA_PATH;
+global xi_n; 
+global q_n; 
+global g_n; 
 global fname;
-DATA_PATH = '../data/';
-global IMAGES_PATH;
-IMAGES_PATH = '../images/';
-global VER_PATH;
-VER_PATH = DATA_PATH+'verification/';
-global VER_IMG_PATH;
-VER_IMG_PATH = IMAGES_PATH+'verification/';
-
-verFiles = ['30.dat','80.dat','100.dat']; //list of data files
-
-//get size
-_ff = size(dataFiles);
-fsize =_ff(2);
+global imgname;
+global CURRENT_POWER; //Current power being analysed 
 
 //Get the verification signal
    
@@ -92,7 +80,7 @@ fdata=ExponentialFilter(LpAlpha,avg);
 
 //Tachometer estimation
 y = zeros(1,length(t));
-MaxCount = round(length(t)/2);
+MaxCount = round(length(t)/3);
 //MaxCount = 50;
 for i=2:length(fdata)
     if i <= MaxCount
@@ -109,14 +97,21 @@ clf(hf);
 plot(t, y, 'm');
 
 //Estimate the Response using the model parameters
+v_est =zeros(1,length(t));
 StepTime = 1;
-q_est = Y($);
+q_est = y($);
 N = q_est/(2*sqrt(1 - xi_n^2));
 phi = atan(xi_n, -sqrt(1 - xi_n^2));
 y_est = q_est + 2*N*exp(-xi_n*omega_n*t).*cos(omega_n*sqrt(1 - xi_n^2)*t + phi);
-y_est = [zeros(1,length(0:StepValue:StepTime-StepValue)), y_est(1:$-length(0:StepValue:StepTime-StepValue))];
-
+v_est = y_est(1:$)';
+hf = scf(2);
+plot(t, y_est, 'g');
+xs2png(hf, imgname+'_performance.png');
 //calculate the perfomance indices
+ISE = sum((v_est - y)^2)
+IAE = sum(abs(v_est - y))
+ITSE = sum(t'.*(v_est - y)^2)
+ITAE = sum(t'.*abs(v_est - y))
 
 
 
