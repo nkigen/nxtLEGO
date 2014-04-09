@@ -21,12 +21,14 @@ static inline void agv2Buffer(char **argv, int argc, char *buff)
 }
 
 /*
- * clean-up function
+ * close all open sockets and free any allocated memory
  * */
 void on_terminate()
 {
-	printf("c-app: terminate function called");
-    /*TODO:*/
+    printf("c-app: Garbage Collection");
+
+    c_app_close();
+
 }
 
 int main(int argc, char **argv)

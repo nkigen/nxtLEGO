@@ -7,10 +7,10 @@
 #include "include/client_req.h"
 #include "../common/include/bt_packet.h"
 
-#define unlikely(x)     __builtin_expect((x),0)
+//#define unlikely(x)     __builtin_expect((x),0)
 
 /*************GLOBAL VARIABLES**********/
-uint32_t timestamp;
+//uint32_t timestamp;
 uint32_t bt_conn_status;
 bt_packet_t incoming_packet[1];
 bt_packet_t outgoing_packet[1];
