@@ -27,7 +27,7 @@ void on_terminate()
 {
     printf("c-app: Garbage Collection");
 
-    c_app_close();
+    app_close();
 
 }
 
