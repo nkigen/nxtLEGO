@@ -1,4 +1,5 @@
-global fname;// 
+//global fname;// 
+fname = '../data/p100/motor_100.dat';
 global imgname;
 global DATA_PATH;
 global IMAGES_PATH;
@@ -10,7 +11,7 @@ global q_n;
 global omega_est; //omega_est
 global OverShoot; //overshoot
 
-LpAlpha = 0.575; //Alpha value for filter
+LpAlpha = 1; //Alpha value for filter
 sAlpha = 0.1; //Settling time alpha (10%)
 global StepValue;
 StepValue = 0.01;  
@@ -106,7 +107,7 @@ plot(t,avg,'b');
 xs2png(hf, imgname+'_original.png');
 
 //Apply LowPassFilter
-fdata=ExponentialFilter(LpAlpha,avg);
+fdata=avg;
 //fdata=MovingAverage(avg);
 //plot filtered data
  hf = scf(1);
@@ -116,7 +117,7 @@ fdata=ExponentialFilter(LpAlpha,avg);
 //Tachometer estimation
 y = zeros(1,length(t));
 MaxCount = round(length(t)/3);
-//MaxCount = 50;
+//MaxCount = 1;
 for i=2:length(fdata)
     if i <= MaxCount
         DeltaT = t(i) - t(1);
@@ -127,6 +128,7 @@ for i=2:length(fdata)
     end
 end
 y($) = y($-1);
+y = ExponentialFilter(LpAlpha,y);
 hf = scf(2);
 clf(hf);
 plot(t, y, 'm');

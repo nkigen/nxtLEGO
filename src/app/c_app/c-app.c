@@ -8,13 +8,18 @@
 #include "include/c-app.h"
 #include "include/app_log.h"
 
-#define LOG_FILE			"c_app_log.dat"
+#define LOG_FILE			"log_power_"
 
 /*******GLOBAL VARIABLES***********/
 app_options_t options;
 
 /*TODO:*/
 
+void get_log_name(int power, char *fname)
+{
+	strcpy(fname,LOG_FILE);
+	/*TODO:complete this*/
+}
 static int get_next_motor_power(motor_opts_t *motor)
 {
     int tmp;
@@ -44,8 +49,6 @@ static int get_next_motor_power(motor_opts_t *motor)
 int start_app(char *buf, int size, int *c_sock)
 {
     int rc;
-    init_log(LOG_FILE);/*open the log file*/
-    printf("Input file %s\n", buf);
     rc = decode_options(buf, &options);
     if( rc < 0)
     {
@@ -58,8 +61,6 @@ int start_app(char *buf, int size, int *c_sock)
         perror("Comms failed");
         return -1;
     }
-    else
-        printf("c-app: comm init success\n");
     return 0;
 }
 
@@ -80,8 +81,6 @@ int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, int 
         perror("failed to send motor packet");
         return -1;
     }
-    else
-        printf("c-app: SET_MOTOR_POWER packet sent successfully\n");
 
     /*receive ACK from client and ignore for now*/
     rc = recv(c_sock, res, len, 0);
@@ -90,23 +89,17 @@ int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, int 
     {
         printf("c-app: ACK received. Good to go now!!\n");
     }
-    else
-        printf("c-app: Nothing received from server\n");
     /*prep packet for reply(num counts)*/
-    memset(res, 0, len);
-    printf("c-app: preping GET_MOTOR_COUNT packet\n");
+    //memset(res, 0, len);
     bt_packet_get_motor_power(req, req->packets[0].port);/*TODO: modify 0*/
     /**/
     do {
-        printf("c-app: Sending GET_MOTOR_COUNT to server...\n");
         rc = send(c_sock, req, len, 0);
         if(rc < 0)
         {
             perror("c-app: failed to send motor fetch  packet");
             return -1;
         }
-        else
-            printf("c-app: Get motor count packet send successfully\n");
 
         rc = recv(c_sock, res, len, 0);
 
@@ -117,7 +110,6 @@ int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, int 
         }
         else
         {
-            printf("c-app: Motor Count Packet received successfully\n");
             /*Process the response( Log the values received)*/
             if(count > 1 && power > 0)
                 log_motor_packet(LOG_FILE,power, res);
@@ -142,19 +134,22 @@ int motor_handler(int c_sock, motor_opts_t *motor)
         printf("c-app: Nothing to do: samples ==0!!\n");
         return 0;
     }
-
+    char fname[12];
     do {
 //printf("c-app: motor_handler loop %d\n",i);
+	
         power = get_next_motor_power(motor);
+	get_log_file(power,fname);
+	init_log(fname);	
         if(power == last)
             _stop = 1;
-        printf("c-app: setting motor power to %d\n", power);
         bt_packet_set_motor_power(request,motor->port, power); /*Prep packet for setting motor power*/
         handler_get_motor_count(c_sock, request, response, motor->num_samples);/*get and log the motor revs*/
 
         /*Reset Motor to zero and pause for 3 seconds before changing the power value*/
         bt_packet_set_motor_power(request,motor->port,0);
         handler_get_motor_count(c_sock, request, response, 1);
+	end_log();
         sleep(3);
     } while( !_stop);
     /*Now send the BT_END_CONNECTION to terminate the server*/

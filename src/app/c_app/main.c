@@ -46,8 +46,6 @@ int main(int argc, char **argv)
         perror("client: Failed to start c-app");
         return -1;
     }
-    else
-        printf("c-app: client app start-up complete\n");
     /*Prepare bt_packets to send with data from app_options_t
      * For now prepare only motor opts*/
     comm_handler(c_sock);
