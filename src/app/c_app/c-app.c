@@ -8,17 +8,22 @@
 #include "include/c-app.h"
 #include "include/app_log.h"
 
-#define LOG_FILE			"log_power_"
+#define LOG_FILE			"log_power_i\0"
 
 /*******GLOBAL VARIABLES***********/
 app_options_t options;
 
 /*TODO:*/
 
-void get_log_name(int power, char *fname)
+void get_log_file(int power, char *fname)
 {
-	strcpy(fname,LOG_FILE);
-	/*TODO:complete this*/
+    strcpy(fname,LOG_FILE);
+    char buf[10];
+
+    sprintf(buf, "%d", power);
+    strcat(fname,buf);
+    printf("Using logfile:",fname);
+    /*TODO:complete this*/
 }
 static int get_next_motor_power(motor_opts_t *motor)
 {
@@ -91,15 +96,17 @@ int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, int 
     }
     /*prep packet for reply(num counts)*/
     //memset(res, 0, len);
-    bt_packet_get_motor_power(req, req->packets[0].port);/*TODO: modify 0*/
+    bt_packet_get_motor_power(req, req->packets[0].port, count);/*TODO: modify 0*/
+
+    /*Send request to server*/
+    rc = send(c_sock, req, len, 0);
+    if(rc < 0)
+    {
+        perror("c-app: failed to send motor fetch  packet");
+        return -1;
+    }
     /**/
     do {
-        rc = send(c_sock, req, len, 0);
-        if(rc < 0)
-        {
-            perror("c-app: failed to send motor fetch  packet");
-            return -1;
-        }
 
         rc = recv(c_sock, res, len, 0);
 
@@ -137,10 +144,10 @@ int motor_handler(int c_sock, motor_opts_t *motor)
     char fname[12];
     do {
 //printf("c-app: motor_handler loop %d\n",i);
-	
+
         power = get_next_motor_power(motor);
-	get_log_file(power,fname);
-	init_log(fname);	
+        get_log_file(power,fname);
+        init_log(fname);
         if(power == last)
             _stop = 1;
         bt_packet_set_motor_power(request,motor->port, power); /*Prep packet for setting motor power*/
@@ -149,7 +156,7 @@ int motor_handler(int c_sock, motor_opts_t *motor)
         /*Reset Motor to zero and pause for 3 seconds before changing the power value*/
         bt_packet_set_motor_power(request,motor->port,0);
         handler_get_motor_count(c_sock, request, response, 1);
-	end_log();
+        end_log();
         sleep(3);
     } while( !_stop);
     /*Now send the BT_END_CONNECTION to terminate the server*/

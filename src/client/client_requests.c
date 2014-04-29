@@ -52,8 +52,8 @@ static inline void bt_req_process(bt_req_t *in, bt_req_t *out)
         break;
     case GET_MOTOR_COUNT:
         out->data[VALUE_INDEX]     = nxt_motor_get_count(port);
-    //    out->data[TIMESTAMP_INDEX] = timestamp;
-          out->data[TIMESTAMP_INDEX] = systick_get_ms();
+        //    out->data[TIMESTAMP_INDEX] = timestamp;
+        out->data[TIMESTAMP_INDEX] = systick_get_ms();
         break;
     default:
         break;
@@ -63,9 +63,26 @@ static inline void bt_req_process(bt_req_t *in, bt_req_t *out)
 void bt_decode_incoming(bt_packet_t *incoming, bt_packet_t *outgoing)
 {
     int i;
-/*Currently the only packet is for motor operations(One Motor)*/
+    /*Currently the only packet is for motor operations(One Motor)*/
     for( i = 0; i < MAX_REQ; ++i)
     {
         bt_req_process(&incoming->packets[i], &outgoing->packets[i]);
+    }
+}
+
+void bt_handler(bt_packet_t *incoming, bt_packet_t *outgoing)
+{
+    int nruns = incoming->packets[0].data[TIMESTAMP_INDEX];
+    if(!nruns) {
+        bt_decode_incoming(incoming, outgoing);
+        bt_send((U8*)outgoing, (U32)sizeof(bt_packet_t));
+        return;
+    }
+
+    int i = 0;
+    while(i < nruns) {
+        bt_decode_incoming(incoming, outgoing);
+        bt_send((U8*)outgoing, (U32)sizeof(bt_packet_t));
+        ++i;
     }
 }

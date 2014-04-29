@@ -47,7 +47,7 @@ int controller_init(int *server_sock)
         return -1;
     }
     else
-	    printf("server: Listening for AF_UNIX connections");
+        printf("server: Listening for AF_UNIX connections");
     return 0;
 }
 
@@ -88,15 +88,16 @@ int controller_accept_conn(int *server_sock, int *client_sock)
         return -1;
     }
     else
-	    printf("server: socket options set success!!\n");
+        printf("server: socket options set success!!\n");
     return 0;
 }
 
 
 int controller_process_req(bt_packet_t *in, bt_packet_t *out,int *client_sock, int *bt_sock)
 {
-	printf("server: Attempting to process request from %d...\n",*client_sock);
+    printf("server: Attempting to process request from %d...\n",*client_sock);
     int rc, len;
+    int nruns = in->packets[0].data[TIMESTAMP_INDEX];
     len = sizeof(bt_packet_t);
 
     rc = recv(*client_sock, in, len, 0);
@@ -105,20 +106,39 @@ int controller_process_req(bt_packet_t *in, bt_packet_t *out,int *client_sock, i
         perror("server: recv error");
         return -1;
     }
-    else
-	    printf("server:client req recvd %d \n", rc);
     if( rc < len)
     {
         perror("incomplete data received from client");
         return -1;
     }
-    else
-	    printf("server: Client data received. NICE!!\n");
 
     /*TODO: cater for when in->size > 1*/
     if( (int)in->packets[0].data[VALUE_INDEX] != BT_CLOSE_CONNECTION)
     {
-        server_client_bt(in,out,bt_sock); /*TODO: process return value*/
+        int i = 0;
+        server_send_bt(in,bt_sock);
+        if(!nruns) {
+            server_recv_bt(out,bt_sock);
+
+            rc = send(*client_sock, out, len, 0);
+            if(rc < 0)
+            {
+                perror("failed to send data to client");
+                return -1;
+            }
+        }
+        while(i < nruns) {
+            server_recv_bt(out,bt_sock); /*TODO: process return value*/
+            /*send data back to client*/
+            rc = send(*client_sock, out, len, 0);
+            if(rc < 0)
+            {
+                perror("failed to send data to client");
+                return -1;
+            }
+            ++i;
+        }
+
     }
     else
     {
@@ -126,13 +146,6 @@ int controller_process_req(bt_packet_t *in, bt_packet_t *out,int *client_sock, i
         return 1; /*1 indicates connection has been terminated*/
     }
 
-    /*send data back to client*/
-    rc = send(*client_sock, out, len, 0);
-    if(rc < 0)
-    {
-        perror("failed to send data to client");
-        return -1;
-    }
     return 0;
 }
 

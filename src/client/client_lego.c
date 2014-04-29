@@ -46,7 +46,6 @@ static void reset_motor_power()
 void ecrobot_device_initialize()
 {
     ecrobot_init_bt_slave(DEVICE_PWD);
-    timestamp = 0;
     bt_conn_status = 0;
     num_packets = 0;
     reset_data_structs();
@@ -88,8 +87,7 @@ TASK(BtComm)
     if( bt_conn_status > 0)
     {
 	    ++num_packets;
-        bt_decode_incoming(incoming_packet, outgoing_packet);
-        bt_send((U8*)outgoing_packet, (U32)sizeof(bt_packet_t));
+	    bt_handler(incoming_packet, outgoing_packet);
     }
     TerminateTask();
 }
