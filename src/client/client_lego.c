@@ -12,6 +12,8 @@
 /*************GLOBAL VARIABLES**********/
 //uint32_t timestamp;
 uint32_t bt_conn_status;
+uint8_t stream_size;
+uint8_t enable_streaming;
 bt_packet_t incoming_packet[1];
 bt_packet_t outgoing_packet[1];
 
@@ -48,6 +50,8 @@ void ecrobot_device_initialize()
     ecrobot_init_bt_slave(DEVICE_PWD);
     bt_conn_status = 0;
     num_packets = 0;
+    stream_size = 0;
+    enable_streaming = 0;
     reset_data_structs();
     reset_motor_power();
 }
@@ -66,8 +70,8 @@ void user_1ms_isr_type2(void)
 {
     StatusType ercd;
 #if 0
-	  /*check value of timestamp to prevent an overflow
-     * if maximum value is reached reset it to 0*/
+    /*check value of timestamp to prevent an overflow
+    * if maximum value is reached reset it to 0*/
     if(unlikely (timestamp == (uintmax_t) UINT32_MAX))
         timestamp = 0;
     else
@@ -81,13 +85,19 @@ void user_1ms_isr_type2(void)
 
 TASK(BtComm)
 {
-
-    bt_conn_status = bt_read((U8*)incoming_packet, 0, sizeof(bt_packet_t));
+    if(stream_size == 0 || enable_streaming == 1)
+        bt_conn_status = bt_read((U8*)incoming_packet, 0, sizeof(bt_packet_t));
 
     if( bt_conn_status > 0)
     {
-	    ++num_packets;
-	    bt_handler(incoming_packet, outgoing_packet);
+        ++num_packets;
+	if(enable_streaming == 1)
+		enable_streaming = 0;
+        if(stream_size > 0)
+            --stream_size;
+
+        bt_decode_incoming(incoming_packet, outgoing_packet);
+        bt_send((U8*)outgoing_packet, (U32)sizeof(bt_packet_t));
     }
     TerminateTask();
 }
@@ -95,7 +105,7 @@ TASK(BtComm)
 
 TASK(DisplayTask)
 {
-   // ecrobot_status_monitor("nxtLEGO client");
+    // ecrobot_status_monitor("nxtLEGO client");
 #if 1
     display_clear(1);
     display_goto_xy(1,0);
@@ -110,6 +120,14 @@ TASK(DisplayTask)
     display_string("Packets:");
     display_goto_xy(9,2);
     display_unsigned(num_packets,6);
+    display_goto_xy(1,3);
+    display_string("ssize:");
+    display_goto_xy(9,3);
+    display_unsigned(stream_size,6);
+    display_goto_xy(1,4);
+    display_string("operation:");
+    display_goto_xy(11,4);
+    dislay_unsigned(enable_streaming,2);
 #endif
     TerminateTask();
 }

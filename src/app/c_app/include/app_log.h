@@ -3,7 +3,7 @@
 #include "../../../common/include/bt_packet.h"
 
 int init_log(char *fname);
-int log_motor_packet(char *fname,int power, bt_packet_t *p);
+int log_motor_packet(char *fname, bt_packet_t *p);
 int end_log();
 
 #endif

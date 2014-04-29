@@ -1,5 +1,5 @@
 //global fname;// 
-fname = '../data/p100/motor_100.dat';
+fname = '../data/log_power_i100';
 global imgname;
 global DATA_PATH;
 global IMAGES_PATH;
@@ -61,7 +61,7 @@ while isEOF <> 1
     [n, rev, ts, pv ] = mfscanf(fd,"%f %f %d");
     if n > 0 then
         mdata(pos,1) = rev;
-        mdata(pos,2) = i; //change i to ts to get the real timestamp from the lego
+        mdata(pos,2) = ts; //change i to ts to get the real timestamp from the lego
         mdata(pos,3) = pv;
         pos = pos + 1;
         i = i + StepValue;

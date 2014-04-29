@@ -9,9 +9,11 @@
 
 #include "include/controller.h"
 
+uint8_t stream_size;
 int controller_init(int *server_sock)
 {
     struct sockaddr_un addr;
+    stream_size = 0;
     int rc;
     *server_sock = socket(AF_UNIX, SOCK_STREAM, 0);
 
@@ -95,9 +97,9 @@ int controller_accept_conn(int *server_sock, int *client_sock)
 
 int controller_process_req(bt_packet_t *in, bt_packet_t *out,int *client_sock, int *bt_sock)
 {
+
     printf("server: Attempting to process request from %d...\n",*client_sock);
     int rc, len;
-    int nruns = in->packets[0].data[TIMESTAMP_INDEX];
     len = sizeof(bt_packet_t);
 
     rc = recv(*client_sock, in, len, 0);
@@ -112,40 +114,43 @@ int controller_process_req(bt_packet_t *in, bt_packet_t *out,int *client_sock, i
         return -1;
     }
 
-    /*TODO: cater for when in->size > 1*/
-    if( (int)in->packets[0].data[VALUE_INDEX] != BT_CLOSE_CONNECTION)
-    {
-        int i = 0;
-        server_send_bt(in,bt_sock);
-        if(!nruns) {
-            server_recv_bt(out,bt_sock);
+    uint8_t operation = in->packets[0].operation;
 
-            rc = send(*client_sock, out, len, 0);
-            if(rc < 0)
-            {
-                perror("failed to send data to client");
-                return -1;
-            }
+    switch(operation) {
+    case BT_START_STREAMING:
+    case BT_END_STREAMING:
+    case SET_MOTOR_POWER: /*Just foward these requests to NXT Lego because no streaming is needed*/
+	    if(operation == BT_START_STREAMING)
+		    stream_size = in->packets[0].data[VALUE_INDEX];
+        server_client_bt(in, out, bt_sock);
+        rc = send(*client_sock, out, len, 0);
+        if(rc < 0)
+        {
+            perror("failed to send data to client");
+            return -1;
         }
-        while(i < nruns) {
-            server_recv_bt(out,bt_sock); /*TODO: process return value*/
-            /*send data back to client*/
-            rc = send(*client_sock, out, len, 0);
-            if(rc < 0)
-            {
-                perror("failed to send data to client");
-                return -1;
-            }
-            ++i;
-        }
-
-    }
-    else
-    {
+        return 0;
+    case BT_CLOSE_CONNECTION:
         printf("Connection to client terminated");
         return 1; /*1 indicates connection has been terminated*/
+    default:
+        break;
     }
-
+    /*Here we are dealing with GET_MOTOR_POWER*/
+printf("Streaming mode activated\n");
+    int i = 0;
+    server_send_bt(in,bt_sock);
+    while(i < stream_size) {
+        server_recv_bt(out,bt_sock); /*TODO: process return value*/
+        /*send data back to client*/
+        rc = send(*client_sock, out, len, 0);
+        if(rc < 0)
+        {
+            perror("failed to send data to client");
+            return -1;
+        }
+        ++i;
+    }
     return 0;
 }
 

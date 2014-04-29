@@ -38,7 +38,7 @@ static int decode_motor_opts(char *str, motor_opts_t *motor)
 {
     char *p = str;
     char buf[BUF_SIZE];
-    int tmp = 0;
+   uint16_t tmp = 0;
     int n = 0;
     int isok = 0;
     while((p = strchr(p,'-')) != NULL && isok < NUM_MOTOR_OPTS)

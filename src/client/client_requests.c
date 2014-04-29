@@ -7,6 +7,8 @@
 #include "include/client_req.h"
 
 #define GET_MOTOR_COUNT		GET_MOTOR_POWER
+extern uint8_t stream_size;
+extern uint8_t enable_streaming;
 static inline void bt_decode_port(uint8_t *in_port,uint8_t *out_port)
 {
     switch(*in_port)
@@ -54,6 +56,14 @@ static inline void bt_req_process(bt_req_t *in, bt_req_t *out)
         out->data[VALUE_INDEX]     = nxt_motor_get_count(port);
         //    out->data[TIMESTAMP_INDEX] = timestamp;
         out->data[TIMESTAMP_INDEX] = systick_get_ms();
+        break;
+    case BT_END_STREAMING:
+        enable_streaming = 0;
+        stream_size = 0;
+        break;
+    case BT_START_STREAMING:
+        stream_size =  in->data[VALUE_INDEX];
+        enable_streaming = 1;
         break;
     default:
         break;

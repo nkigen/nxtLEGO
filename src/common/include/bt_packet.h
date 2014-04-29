@@ -15,6 +15,7 @@
 #define TIMESTAMP_INDEX		1
 
 /****PORT Definitions****/
+#define DEFAULT_PORT		0
 #define PORT_1			1
 #define PORT_2			2
 #define PORT_3			3
@@ -28,6 +29,8 @@
 #define BT_CLOSE_CONNECTION	102 /*Close Bluetooth Connection > Should not be within -100:100*/
 #define SET_MOTOR_POWER		1 /*Set Motor power*/
 #define GET_MOTOR_POWER		2 /*Get the number of "rotations" of the motor*/
+#define BT_END_STREAMING	3 /*End tacho count streaming*/
+#define BT_START_STREAMING	4
 
 
 

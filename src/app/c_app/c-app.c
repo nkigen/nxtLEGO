@@ -8,7 +8,7 @@
 #include "include/c-app.h"
 #include "include/app_log.h"
 
-#define LOG_FILE			"log_power_i\0"
+#define LOG_FILE			"log_power_\0"
 
 /*******GLOBAL VARIABLES***********/
 app_options_t options;
@@ -68,48 +68,35 @@ int start_app(char *buf, int size, int *c_sock)
     }
     return 0;
 }
+int handler_set_motor_power(int c_sock, bt_packet_t *req, bt_packet_t *res,motor_opts_t *motor,  int power) {
 
-int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, int count)
-{
-    int i;
-    int rc;
-    int power;
-    int len;
-
-    len =  sizeof(bt_packet_t);
-    power = req->packets[0].data[VALUE_INDEX];
-    i = 0;
-    /*Send motor count req to server*/
-    rc = send(c_sock, req, len, 0);
-    if(rc < 0)
-    {
-        perror("failed to send motor packet");
-        return -1;
-    }
-
-    /*receive ACK from client and ignore for now*/
-    rc = recv(c_sock, res, len, 0);
-
-    if( rc > 0)
-    {
-        printf("c-app: ACK received. Good to go now!!\n");
-    }
-    /*prep packet for reply(num counts)*/
-    //memset(res, 0, len);
-    bt_packet_get_motor_power(req, req->packets[0].port, count);/*TODO: modify 0*/
-
+    bt_packet_set_motor_power(req,motor->port, power); /*Prep packet for setting motor power*/
     /*Send request to server*/
-    rc = send(c_sock, req, len, 0);
+    int len;
+    len =  sizeof(bt_packet_t);
+    int rc = send(c_sock, req, len, 0);
     if(rc < 0)
     {
         perror("c-app: failed to send motor fetch  packet");
         return -1;
     }
+
+    recv(c_sock, res, len, 0);  /*ignore the response*/
+    return 0;
+}
+int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, motor_opts_t *motor, int count)
+{
+    int i;
+    int rc;
+    int len;
+    len =  sizeof(bt_packet_t);
+    i = 0;
     /**/
+    printf("values to be fetched %d\n",count);
+    bt_packet_get_motor_power(req,motor->port, count);
+    rc = send(c_sock, req, len, 0);
     do {
-
         rc = recv(c_sock, res, len, 0);
-
         /*on recv erro just ignore the packet and bet your luck on the others*/
         if( rc < 0)
         {
@@ -117,14 +104,52 @@ int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, int 
         }
         else
         {
-            /*Process the response( Log the values received)*/
-            if(count > 1 && power > 0)
-                log_motor_packet(LOG_FILE,power, res);
+                log_motor_packet(LOG_FILE, res);
         }
-
     } while(++i < count);
 
     /*TODO: reset motor power to zero the sleep for sometime before sending a request with a different power*/
+    return 0;
+}
+
+int handler_start_motor_stream(int c_sock, bt_packet_t *req, bt_packet_t *res, uint8_t nsamples) {
+    bt_packet_start_stream(req, nsamples);
+    int len;
+    len =  sizeof(bt_packet_t);
+   int  rc = send(c_sock, req, len, 0);
+    if(rc < 0)
+    {
+        perror("c-app: failed to send motor fetch  packet");
+        return -1;
+    }
+    recv(c_sock, res, len, 0);  /*ignore the response*/
+    return 0;
+}
+
+int handler_end_connection(int c_sock, bt_packet_t *req, bt_packet_t *res) {
+    bt_packet_end_connection(req);
+    int len;
+    len =  sizeof(bt_packet_t);
+    int rc = send(c_sock, req, len, 0);
+    if(rc < 0)
+    {
+        perror("c-app: failed to send motor fetch  packet");
+        return -1;
+    }
+    recv(c_sock, res, len, 0);  /*ignore the response*/
+    return 0;
+}
+int handler_end_motor_stream(int c_sock, bt_packet_t *req, bt_packet_t *res) {
+    bt_packet_end_stream(req);
+    int len;
+    len =  sizeof(bt_packet_t);
+    int rc = send(c_sock, req, len, 0);
+    if(rc < 0)
+    {
+        perror("c-app: failed to send motor fetch  packet");
+        return -1;
+    }
+    recv(c_sock, res, len, 0);  /*ignore the response*/
     return 0;
 }
 
@@ -143,25 +168,24 @@ int motor_handler(int c_sock, motor_opts_t *motor)
     }
     char fname[12];
     do {
-//printf("c-app: motor_handler loop %d\n",i);
-
         power = get_next_motor_power(motor);
         get_log_file(power,fname);
         init_log(fname);
         if(power == last)
             _stop = 1;
-        bt_packet_set_motor_power(request,motor->port, power); /*Prep packet for setting motor power*/
-        handler_get_motor_count(c_sock, request, response, motor->num_samples);/*get and log the motor revs*/
 
+        handler_set_motor_power(c_sock, request, response, motor, power);
+	handler_start_motor_stream(c_sock, request, response, motor->num_samples);
+
+        handler_get_motor_count(c_sock, request, response, motor, motor->num_samples);/*get and log the motor revs*/
+	handler_end_motor_stream(c_sock, request, response);
         /*Reset Motor to zero and pause for 3 seconds before changing the power value*/
-        bt_packet_set_motor_power(request,motor->port,0);
-        handler_get_motor_count(c_sock, request, response, 1);
+        handler_set_motor_power(c_sock, request, response, motor, 0);
         end_log();
         sleep(3);
     } while( !_stop);
     /*Now send the BT_END_CONNECTION to terminate the server*/
-    bt_packet_set_motor_power(request,motor->port, BT_CLOSE_CONNECTION);
-    handler_get_motor_count(c_sock, request, response, 1);
+    handler_end_connection(c_sock, request, response);
     return 1;
 }
 /*TODO: Get a better name for this function!!!*/

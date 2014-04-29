@@ -13,9 +13,9 @@ int init_log(char *fname)
 }
 /*log the motor count values to file
  * format: <timestamp> <count> <motor power>*/
-int log_motor_packet(char *fname, int power, bt_packet_t *p)
+int log_motor_packet(char *fname, bt_packet_t *p)
 {
-    fprintf(fp, "%f  %d %d\n", p->packets[0].data[TIMESTAMP_INDEX],(int) p->packets[0].data[VALUE_INDEX], power);
+    fprintf(fp, "%f  %d\n", p->packets[0].data[TIMESTAMP_INDEX],(int) p->packets[0].data[VALUE_INDEX]);
     return 0;
 }
 
