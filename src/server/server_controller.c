@@ -9,7 +9,7 @@
 
 #include "include/controller.h"
 
-uint8_t stream_size;
+uint16_t stream_size;
 int controller_init(int *server_sock)
 {
     struct sockaddr_un addr;
@@ -121,7 +121,7 @@ int controller_process_req(bt_packet_t *in, bt_packet_t *out,int *client_sock, i
     case BT_END_STREAMING:
     case SET_MOTOR_POWER: /*Just foward these requests to NXT Lego because no streaming is needed*/
 	    if(operation == BT_START_STREAMING)
-		    stream_size = in->packets[0].data[VALUE_INDEX];
+		    stream_size =(uint16_t) in->packets[0].data[VALUE_INDEX];
         server_client_bt(in, out, bt_sock);
         rc = send(*client_sock, out, len, 0);
         if(rc < 0)
@@ -137,8 +137,8 @@ int controller_process_req(bt_packet_t *in, bt_packet_t *out,int *client_sock, i
         break;
     }
     /*Here we are dealing with GET_MOTOR_POWER*/
-printf("Streaming mode activated\n");
-    int i = 0;
+printf("Streaming mode activated stream size %d\n", stream_size);
+    uint16_t i = 0;
     server_send_bt(in,bt_sock);
     while(i < stream_size) {
         server_recv_bt(out,bt_sock); /*TODO: process return value*/

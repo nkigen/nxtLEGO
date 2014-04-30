@@ -30,9 +30,9 @@ void bt_packet_end_stream(bt_packet_t *p) {
     p->packets[0].operation = BT_END_STREAMING;
     p->packets[0].port	= DEFAULT_PORT;
 }
-void bt_packet_start_stream(bt_packet_t *p, uint8_t nsamples) {
+void bt_packet_start_stream(bt_packet_t *p, uint16_t nsamples) {
     p->packets[0].operation = BT_START_STREAMING;
-    p->packets[0].data[VALUE_INDEX] = nsamples;
+    p->packets[0].data[VALUE_INDEX] = (float)nsamples;
     p->packets[0].port	= DEFAULT_PORT;
 }
 

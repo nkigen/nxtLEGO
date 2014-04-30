@@ -112,7 +112,7 @@ int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, moto
     return 0;
 }
 
-int handler_start_motor_stream(int c_sock, bt_packet_t *req, bt_packet_t *res, uint8_t nsamples) {
+int handler_start_motor_stream(int c_sock, bt_packet_t *req, bt_packet_t *res, uint16_t nsamples) {
     bt_packet_start_stream(req, nsamples);
     int len;
     len =  sizeof(bt_packet_t);
@@ -122,7 +122,11 @@ int handler_start_motor_stream(int c_sock, bt_packet_t *req, bt_packet_t *res, u
         perror("c-app: failed to send motor fetch  packet");
         return -1;
     }
-    recv(c_sock, res, len, 0);  /*ignore the response*/
+    rc = recv(c_sock, res, len, 0);  /*ignore the response*/
+    if(rc < 0)
+	    perror("stream reply not recvd");
+    else
+	    printf("stream reply recvd\n");
     return 0;
 }
 

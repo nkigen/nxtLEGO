@@ -12,7 +12,8 @@
 /*************GLOBAL VARIABLES**********/
 //uint32_t timestamp;
 uint32_t bt_conn_status;
-uint8_t stream_size;
+uint16_t stream_size;
+uint16_t o_stream; //debugging
 uint8_t enable_streaming;
 bt_packet_t incoming_packet[1];
 bt_packet_t outgoing_packet[1];
@@ -51,6 +52,7 @@ void ecrobot_device_initialize()
     bt_conn_status = 0;
     num_packets = 0;
     stream_size = 0;
+    o_stream = 0;
     enable_streaming = 0;
     reset_data_structs();
     reset_motor_power();
@@ -127,7 +129,7 @@ TASK(DisplayTask)
     display_goto_xy(1,4);
     display_string("operation:");
     display_goto_xy(11,4);
-    dislay_unsigned(enable_streaming,2);
+    display_unsigned(o_stream,6);
 #endif
     TerminateTask();
 }
