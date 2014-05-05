@@ -1,5 +1,5 @@
-//global fname;// 
-fname = '../data/log_power_i100';
+global fname;
+fname = '../data/set_test/log_power_10';
 global imgname;
 global DATA_PATH;
 global IMAGES_PATH;
@@ -11,29 +11,10 @@ global q_n;
 global omega_est; //omega_est
 global OverShoot; //overshoot
 
-LpAlpha = 1; //Alpha value for filter
+LpAlpha = 0.3; //Alpha value for filter
 sAlpha = 0.1; //Settling time alpha (10%)
 global StepValue;
-StepValue = 0.01;  
-
-N = 20; //Moving Average Window
-function [fdata]=MovingAverage(mdata)
-    dta=zeros(mdata);
-    for i=1:N
-        dta(i)=mdata(i);
-    end
-    for n=N+1:length(mdata)-N
-        sum = 0;
-        for k=n-N:n
-            sum = mdata(n)+sum;
-        end
-        dta(n)=sum/N;
-    end
-    for n=length(mdata)-N+1:length(mdata)
-        dta(n)=mdata(n);
-    end
-    fdata = dta;
-endfunction
+StepValue = 0.002;  
 
 //Exponential Filter
     function [efdata] =ExponentialFilter(alph,avg)
@@ -45,7 +26,7 @@ endfunction
         efdata=fdata;
     endfunction
     
-//Open and read file
+//Open and Read file
 fd = mopen(fname,'r');
 if fd == -1 then
     error("Failed to open file for reading");
@@ -58,11 +39,10 @@ pos = 1;
 i = 0;
 mdata = []; //declare an empty matrix 
 while isEOF <> 1
-    [n, rev, ts, pv ] = mfscanf(fd,"%f %f %d");
+    [n, rev, ts] = mfscanf(fd,"%f %f");
     if n > 0 then
         mdata(pos,1) = rev;
-        mdata(pos,2) = ts; //change i to ts to get the real timestamp from the lego
-        mdata(pos,3) = pv;
+        mdata(pos,2) = i;//ts * 0.001;//i;//ts; //change i to ts to get the real timestamp from the lego
         pos = pos + 1;
         i = i + StepValue;
     else
@@ -72,7 +52,6 @@ end
 mclose(fd);
 
 //Sanitize the timestamp to start from 0
-CURRENT_POWER=mdata(1,3);
 if mdata(1,2) <> 0 then
     ts = mdata(1,2);
     for i=1:length(mdata(:,2))
@@ -81,8 +60,9 @@ if mdata(1,2) <> 0 then
 end
 
 //Average values with the same timestamp
-avg = [];
-t=[];
+avg =  [];
+t = [];
+
 index = 1;
 i = 1;
 while i < length(mdata(:,1)) - 1
@@ -90,8 +70,13 @@ while i < length(mdata(:,1)) - 1
     ts = mdata(i,2);
     j = i+1;
     while mdata(j,2) == ts
-        tv = tv + mdata(j,1);
-        j = j+1; 
+        if j == length(mdata(:,1)) then
+            break;
+        else
+            tv = tv + mdata(j,1);
+            j = j+1;
+        end
+         
     end
     tv = tv /(j-i);
     avg(index)=tv;
@@ -99,7 +84,7 @@ while i < length(mdata(:,1)) - 1
     index = index+1;
     i = j;
 end
-
+//
 //plot the data
 hf = scf(1);
 clf(hf,'clear');
@@ -107,8 +92,8 @@ plot(t,avg,'b');
 xs2png(hf, imgname+'_original.png');
 
 //Apply LowPassFilter
-fdata=avg;
-//fdata=MovingAverage(avg);
+fdata=ExponentialFilter(LpAlpha,avg);
+
 //plot filtered data
  hf = scf(1);
  plot(t,fdata,'r--');
@@ -116,19 +101,20 @@ fdata=avg;
 
 //Tachometer estimation
 y = zeros(1,length(t));
-MaxCount = round(length(t)/3);
+MaxCount =750;//round(length(t)/10);
 //MaxCount = 1;
 for i=2:length(fdata)
     if i <= MaxCount
         DeltaT = t(i) - t(1);
+        
         y(i-1) = (fdata(i) - fdata(1))/DeltaT*%pi/180;
     else
         DeltaT = t(i) - t(i-MaxCount);
+       
         y(i-1) = (fdata(i) - fdata(i-MaxCount))/DeltaT*%pi/180;
     end
 end
 y($) = y($-1);
-y = ExponentialFilter(LpAlpha,y);
 hf = scf(2);
 clf(hf);
 plot(t, y, 'm');

@@ -4,7 +4,7 @@ global fname; // used by analysis.sce
 global imgname;
 global StepValue;
 global DATA_PATH;
-DATA_PATH = '../data/';
+DATA_PATH = '../data/set3/';
 global IMAGES_PATH;
 IMAGES_PATH = '../images/';
 
@@ -17,7 +17,8 @@ global OverShoot; //overshoot
 global xi_est;
 global omega_n;
 global xi_n;
-dataFiles = ['10.dat','20.dat','30.dat','40.dat','50.dat','60.dat','70.dat','80.dat','90.dat','100.dat']; //list of data files
+data_prefix = 'log_power_'; //filename prefix
+dataFiles = ['10','20','30','40','50','60','70','80','90','100']; //list of data files
 
 //get size
 _ff = size(dataFiles);
@@ -26,11 +27,12 @@ fsize =_ff(2);
 //"pass" the files to analysis.sce
 Mfd = mopen('../data/params.dat', 'w');
 if Mfd == -1 then
-    error("Failed to open file for reading");
+    error("Failed to open params file for writing");
 end
 
 for i=1:fsize
-    fname = DATA_PATH+dataFiles(i);
+    CURRENT_POWER = strtod(dataFiles(i));
+    fname = DATA_PATH + data_prefix + dataFiles(i);
     imgname= IMAGES_PATH+dataFiles(i);
     exec('analysis.sce', -1);
     mfprintf(Mfd,"%d %f %f %f %f\n",CURRENT_POWER,xi_est,omega_est,st_est,OverShoot);
