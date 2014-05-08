@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+#include<string.h>
 #include "kernel.h"
 #include "kernel_id.h"
 #include "ecrobot_interface.h"
@@ -7,6 +7,7 @@
 #include "include/client_req.h"
 
 #define GET_MOTOR_COUNT		GET_MOTOR_POWER
+extern uint32_t timestamp;
 extern uint16_t stream_size;
 extern uint16_t o_stream;
 extern uint8_t enable_streaming;
@@ -54,9 +55,10 @@ static inline void bt_req_process(bt_req_t *in, bt_req_t *out)
         /*TODO: Send ACK to server after speed change*/
         break;
     case GET_MOTOR_COUNT:
-        out->data[VALUE_INDEX]     = nxt_motor_get_count(port);
-        //    out->data[TIMESTAMP_INDEX] = timestamp;
-        out->data[TIMESTAMP_INDEX] = systick_get_ms();
+	out->data[VALUE_INDEX] = nxt_motor_get_count(port);
+	out->data[TIMESTAMP_INDEX] = timestamp;
+        //out->data[TIMESTAMP_INDEX] = timestamp;
+       // out->data[TIMESTAMP_INDEX] = systick_get_ms();
         break;
     case BT_END_STREAMING:
         enable_streaming = 0;

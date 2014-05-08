@@ -1,5 +1,5 @@
 global fname;
-fname = '../data/set_test/log_power_10';
+//fname = '../data/log_power_10';
 global imgname;
 global DATA_PATH;
 global IMAGES_PATH;
@@ -11,10 +11,10 @@ global q_n;
 global omega_est; //omega_est
 global OverShoot; //overshoot
 
-LpAlpha = 0.3; //Alpha value for filter
-sAlpha = 0.1; //Settling time alpha (10%)
+LpAlpha = 0.58; //Alpha value for filter
+sAlpha = 0.05; //Settling time alpha (10%)
 global StepValue;
-StepValue = 0.002;  
+StepValue = 0.001;  
 
 //Exponential Filter
     function [efdata] =ExponentialFilter(alph,avg)
@@ -42,7 +42,7 @@ while isEOF <> 1
     [n, rev, ts] = mfscanf(fd,"%f %f");
     if n > 0 then
         mdata(pos,1) = rev;
-        mdata(pos,2) = i;//ts * 0.001;//i;//ts; //change i to ts to get the real timestamp from the lego
+        mdata(pos,2) = ts * 0.001;//i;//ts; //change i to ts to get the real timestamp from the lego
         pos = pos + 1;
         i = i + StepValue;
     else

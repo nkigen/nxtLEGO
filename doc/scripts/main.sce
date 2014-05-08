@@ -4,7 +4,7 @@ global fname; // used by analysis.sce
 global imgname;
 global StepValue;
 global DATA_PATH;
-DATA_PATH = '../data/set3/';
+DATA_PATH = '../data/set_par/';
 global IMAGES_PATH;
 IMAGES_PATH = '../images/';
 
