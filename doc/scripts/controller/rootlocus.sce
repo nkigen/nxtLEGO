@@ -18,7 +18,7 @@ endfunction
 G = 1/(s^2/w_n^2 + 2*(xi_n/w_n)*s +1);
 //G = 1/(s*(s+4)*(s+6));
 
-//Lead Controller
+//Lead Compensator
 Kc = 9;
 z0 = -5;
 p0 = -100;
