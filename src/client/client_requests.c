@@ -10,7 +10,9 @@
 extern uint32_t timestamp;
 extern uint16_t stream_size;
 extern uint16_t o_stream;
+extern uint8_t current_motor;
 extern uint8_t enable_streaming;
+extern float desired_velocity;
 static inline void bt_decode_port(uint8_t *in_port,uint8_t *out_port)
 {
     switch(*in_port)
@@ -46,12 +48,13 @@ static inline void bt_req_process(bt_req_t *in, bt_req_t *out)
 
     out->port 	   = in->port;
     out->operation = in->operation;
-
+    port = in->port;
     bt_decode_port(&in->port,&port);
     switch(in->operation)
     {
     case SET_MOTOR_POWER:
         nxt_motor_set_speed(port, in->data[VALUE_INDEX], 1);
+	current_motor = port;
         /*TODO: Send ACK to server after speed change*/
         break;
     case GET_MOTOR_COUNT:
@@ -68,6 +71,12 @@ static inline void bt_req_process(bt_req_t *in, bt_req_t *out)
       o_stream = stream_size =  in->data[VALUE_INDEX];
         enable_streaming = 1;
         break;
+    case BT_CONTROL_MODE:
+	enable_control = 1;
+	current_motor = port;
+	desired_velocity = in->data[VALUE_INDEX];
+	break;
+/*TODO: Add another case here for the velocity*/
     default:
         break;
     }

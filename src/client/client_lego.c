@@ -8,7 +8,6 @@
 #include "../common/include/bt_packet.h"
 
 #define unlikely(x)     __builtin_expect((x),0)
-#define MEAN_TIME_READ 	2
 /*************GLOBAL VARIABLES**********/
 uint32_t timestamp;
 uint32_t bt_conn_status;
@@ -16,19 +15,28 @@ uint16_t stream_size;
 uint16_t o_stream; //debugging
 uint8_t enable_streaming;
 uint8_t ts_read;
+uint8_t current_motor;
+uint8_t enable_controller;
 bt_packet_t incoming_packet[1];
 bt_packet_t outgoing_packet[1];
 
 uint32_t num_packets; /*Number of bt packets received successfully*/
+
+/*Controller Variables*/
+float desired_velocity;
+float current_velocity;
+
 #define DEVICE_PWD "1234"
 
 /******OSEK Declarations******/
 
 DeclareCounter(SysTimerCnt);
 DeclareTask(BtComm);
+DeclareTask(ControllerTask);
 DeclareTask(DisplayTask);
 DeclareResource(RES_LCD);
 DeclareAlarm(BT_COMM_ALARM);
+DeclareAlarm(CONTROLLER_ALARM);
 DeclareAlarm(LCD_UPDATE_ALARM);
 
 
@@ -57,8 +65,12 @@ void ecrobot_device_initialize()
     stream_size = 0;
     o_stream = 0;
     enable_streaming = 0;
+    desired_velocity = 0;
+    current_velocity = 0;
+    enable_controller = 0;
     reset_data_structs();
     reset_motor_power();
+    init_controller();
 }
 
 
@@ -91,30 +103,43 @@ void user_1ms_isr_type2(void)
 
 TASK(BtComm)
 {
-    if(ts_read == 0)
-        ts_read = timestamp;
-    if((timestamp - ts_read)>= MEAN_TIME_READ)
+    if(stream_size == 0 || enable_streaming == 1)
+        bt_conn_status = bt_read((U8*)incoming_packet, 0, sizeof(bt_packet_t));
+
+    if( bt_conn_status > 0)
     {
-        ts_read = timestamp;
-        if(stream_size == 0 || enable_streaming == 1)
-            bt_conn_status = bt_read((U8*)incoming_packet, 0, sizeof(bt_packet_t));
+        ++num_packets;
+        if(enable_streaming == 1)
+            enable_streaming = 0;
+        if(stream_size > 0)
+            --stream_size;
 
-        if( bt_conn_status > 0)
-        {
-            ++num_packets;
-            if(enable_streaming == 1)
-                enable_streaming = 0;
-            if(stream_size > 0)
-                --stream_size;
-
-            bt_decode_incoming(incoming_packet, outgoing_packet);
-            bt_send((U8*)outgoing_packet, (U32)sizeof(bt_packet_t));
-        }
+        bt_decode_incoming(incoming_packet, outgoing_packet);
+        bt_send((U8*)outgoing_packet, (U32)sizeof(bt_packet_t));
     }
     TerminateTask();
 }
 
+TASK(ControllerTask) {
+    static float pid_update = 0.0, lc_update=0.0;
+    float val, pwr;
 
+    if(enable_controller == 0)
+        TerminateTask();
+    e2 = e1;
+    e1 = e;
+    /*Controller Implementation*/
+    pid_update = PIDControllerUpdate();
+    lc_update = LCControllerUpdate();
+    pwr = saturator(pid_update*lc_update);
+    /*Update Plant*/
+    nxt_motor_set_speed(pwr);
+    val = nxt_motor_get_count(current_motor);
+    current_velocity = motorEncoder(val);
+    /*Update Error*/
+    e = desired_velocity - current_velocity;
+    TerminateTask();
+}
 TASK(DisplayTask)
 {
     // ecrobot_status_monitor("nxtLEGO client");

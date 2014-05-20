@@ -26,6 +26,15 @@ CPU ATMEL_AT91SAM7S256
     TASK BtComm
     {
         AUTOSTART = FALSE;
+        PRIORITY = 3;
+        ACTIVATION = 1;
+        SCHEDULE = FULL;
+        STACKSIZE = 512;
+    };
+
+    TASK ControllerTask
+    {
+        AUTOSTART = FALSE;
         PRIORITY = 2;
         ACTIVATION = 1;
         SCHEDULE = FULL;
@@ -65,6 +74,20 @@ CPU ATMEL_AT91SAM7S256
         };
     };
 
+    ALARM CONTROLLER_ALARM
+    {
+        COUNTER = SysTimerCnt;
+        ACTION = ACTIVATETASK
+        {
+            TASK = ControllerTask;
+        };
+        AUTOSTART = TRUE
+        {
+            ALARMTIME = 1;
+            CYCLETIME = 2;  // 2ms run time
+            APPMODE = appmode1;
+        };
+    };
 
     ALARM LCD_UPDATE_ALARM
     {

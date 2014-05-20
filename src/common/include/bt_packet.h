@@ -31,6 +31,7 @@
 #define GET_MOTOR_POWER		2 /*Get the number of "rotations" of the motor*/
 #define BT_END_STREAMING	3 /*End tacho count streaming*/
 #define BT_START_STREAMING	4
+#define BT_CONTROL_MODE		5 /*Use the Controller to set motor speed*/
 
 
 

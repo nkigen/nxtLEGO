@@ -1,6 +1,17 @@
 global G;
 global Kc;
 global C;
+global LpAlpha;
+global Tc;
+global Kd;
+global Kp;
+global Ki;
+
+Kd = 2;
+Ki = 20;
+Kp = 10
+Tc = 0.001;
+LpAlpha = 0.001;
 s = poly(0, 's');
 w_n = 28.400017;
 xi_n = 0.2825585;
@@ -27,8 +38,8 @@ C = (s - z0)/((s - p0));
 xi_t = getMinimumXI(0.2);
 w_t = getMinimumOmega(5,0.3,xi_n);
 
-clf();
-evans(C*G);
-sgrid(xi_t,w_t);
+//clf();
+//evans(C*G);
+//sgrid(xi_t,w_t);
 
 //kc_lim = kpure(syslin('c',C*G));
