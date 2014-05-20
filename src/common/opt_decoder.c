@@ -34,10 +34,11 @@ static int decode_motor_power(char *str, motor_opts_t *motor)
     return 0;
 }
 /*TODO: Seems not to decode -n >1000 well */
-static int decode_motor_opts(char *str, motor_opts_t *motor)
+static int decode_motor_opts(char *str, app_options_t *opts)
 {
     char *p = str;
     char buf[BUF_SIZE];
+    float ctrl_vel;
    uint16_t tmp = 0;
     int n = 0;
     int isok = 0;
@@ -49,21 +50,28 @@ static int decode_motor_opts(char *str, motor_opts_t *motor)
             ++isok;
             ++p;
             sscanf(p,"%d%n",&tmp,&n);
-            motor->port = tmp;
+            opts->motor.port = tmp;
             p += n;
             break;
+	case OPT_CONTROL_SPEED:
+	    isok = NUM_MOTOR_OPTS;
+	    ++p;
+	    sscanf(p,"%f",&ctrl_vel);
+	    opts->m_control.desired_velocity = ctrl_vel;
+	    opts->m_control.port = opts->motor.port;
+	    break;
         case OPT_MOTOR_POWER:
             ++isok;
             ++p;
             sscanf(p,"%s%n",buf,&n);
             p += n;
-            decode_motor_power(buf,motor);
+            decode_motor_power(buf,&opts->motor);
             break;
         case OPT_MOTOR_SAMPLE:
             ++isok;
             ++p;
             sscanf(p,"%d%n",&tmp,&n);
-            motor->num_samples = tmp;
+            opts->motor.num_samples = tmp;
             p += n;
             break;
         default:
@@ -72,7 +80,8 @@ static int decode_motor_opts(char *str, motor_opts_t *motor)
 
     }
     
-    printf("min_power: %d , max_power: %d, step: %d samples %d\n", motor->min_power,motor->max_power,motor->step, motor->num_samples);
+    printf("min_power: %d , max_power: %d, step: %d samples %d\n", opts->motor.min_power,opts->motor.max_power,opts->motor.step, opts->motor.num_samples);
+    printf("CONTROL PARAMS: %d %f\n",opts->m_control.port,opts->m_control.desired_velocity);
     if(isok == NUM_MOTOR_OPTS) /*All options are OK*/
         return 0;
     else         /*Sad case: Some important options are missing :-(*/
@@ -82,7 +91,7 @@ static int decode_motor_opts(char *str, motor_opts_t *motor)
 int decode_options(char *str, app_options_t *opts)
 {
     int sz;
-    sz = decode_motor_opts(str, &opts->motor);
+    sz = decode_motor_opts(str, opts);
     if(sz < 0)
     {
         perror("failed to decode options string");

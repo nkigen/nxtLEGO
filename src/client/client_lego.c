@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include<inttypes.h>
+#include<math.h>
 
 #include "include/client_lego.h"
 #include "include/client_req.h"
 #include "../common/include/bt_packet.h"
+#include "include/client_utilities.h"
 
 #define unlikely(x)     __builtin_expect((x),0)
 /*************GLOBAL VARIABLES**********/
@@ -128,16 +130,19 @@ TASK(ControllerTask) {
         TerminateTask();
     e2 = e1;
     e1 = e;
-    /*Controller Implementation*/
-    pid_update = PIDControllerUpdate();
-    lc_update = LCControllerUpdate();
-    pwr = saturator(pid_update*lc_update);
-    /*Update Plant*/
-    nxt_motor_set_speed(pwr);
+
     val = nxt_motor_get_count(current_motor);
     current_velocity = motorEncoder(val);
     /*Update Error*/
     e = desired_velocity - current_velocity;
+
+    /*Controller Implementation*/
+    pid_update = PIDControllerUpdate();
+    lc_update = LCControllerUpdate();
+    pwr = saturator(pid_update*lc_update);
+
+    /*Update Plant*/
+    nxt_motor_set_speed(current_motor, pwr, 1);
     TerminateTask();
 }
 TASK(DisplayTask)
@@ -162,9 +167,11 @@ TASK(DisplayTask)
     display_goto_xy(9,3);
     display_unsigned(stream_size,6);
     display_goto_xy(1,4);
-    display_string("operation:");
+    display_string("velocity:");
     display_goto_xy(11,4);
-    display_unsigned(o_stream,6);
+    static uint32_t val= 0;
+   val = floorf(current_velocity);
+    display_unsigned(val,6);
 #endif
     TerminateTask();
 }

@@ -6,6 +6,7 @@
 #define OPT_PORT		'p'
 #define OPT_MOTOR_POWER		'm'
 #define OPT_MOTOR_SAMPLE	'n'
+#define OPT_CONTROL_SPEED	'c'
 
 #define NUM_MOTOR_OPTS		3
 /*
@@ -34,12 +35,17 @@ typedef struct {
     uint16_t num_samples;
 } motor_opts_t;
 
+typedef struct {
+	uint8_t port;
+	float desired_velocity;
+} motor_control_t;
 /*
  * All options
  */
 typedef struct {
 
     motor_opts_t motor; /*TODO: add support for all motors*/
+    motor_control_t m_control;
 } app_options_t;
 int decode_options(char *str, app_options_t *opts);
 

@@ -3,15 +3,9 @@ global Kc;
 global C;
 global LpAlpha;
 global Tc;
-global Kd;
-global Kp;
-global Ki;
 
-Kd = 2;
-Ki = 20;
-Kp = 10
 Tc = 0.001;
-LpAlpha = 0.001;
+LpAlpha = 0.22;
 s = poly(0, 's');
 w_n = 28.400017;
 xi_n = 0.2825585;
@@ -29,12 +23,10 @@ endfunction
 G = 1/(s^2/w_n^2 + 2*(xi_n/w_n)*s +1);
 //G = 1/(s*(s+4)*(s+6));
 
-Kc = 60;
+Kc = 15;
 z0 = -10;
-z1 = -30;
-//z2 = -25;
-p0 = -270;
-//p1 = -50;
+z1 = -30; 
+p0 = -270; 
 C =((s-z0)*(s-z1))/((s)*(s-p0));
 
 xi_t = getMinimumXI(0.2);

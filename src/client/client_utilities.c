@@ -1,10 +1,10 @@
 #include<stdio.h>
 #include<math.h>
-#include "client_utilities.h"
+#include "include/client_utilities.h"
 
 float e, e1, e2;
 float PID, LC;
-float K;
+uint32_t K;
 float I_k, D_k;
 float LP_k; //Previous value of filter
 inline float DegToRad(float rad)
@@ -53,7 +53,7 @@ inline float calcIntegral(float output) {
 }
 
 inline float quantizer(float val) {
-    return floorf(val);
+    return floorf(val + 0.5);
 }
 
 inline float LPFilter(float val) {
@@ -74,6 +74,7 @@ float motorEncoder(uint32_t count) {
     float quantized = quantizer(rad);
     float filt = LPFilter(quantized);
     float deg = RadToDeg(filt);
+    ++K;
     return derivative(deg);
 
 }

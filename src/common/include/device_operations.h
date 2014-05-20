@@ -11,5 +11,6 @@ void bt_packet_get_motor_power(bt_packet_t *p, uint8_t port,int count);
 void bt_packet_start_stream(bt_packet_t *p, uint16_t nsamples);
 void bt_packet_end_stream(bt_packet_t *p);
 void bt_packet_end_connection(bt_packet_t *p);
+void bt_packet_prep_control(bt_packet_t *p, uint8_t port, float vel);
 #endif
 

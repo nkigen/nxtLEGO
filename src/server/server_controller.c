@@ -119,6 +119,7 @@ int controller_process_req(bt_packet_t *in, bt_packet_t *out,int *client_sock, i
     switch(operation) {
     case BT_START_STREAMING:
     case BT_END_STREAMING:
+    case BT_CONTROL_MODE:
     case SET_MOTOR_POWER: /*Just foward these requests to NXT Lego because no streaming is needed*/
 	    if(operation == BT_START_STREAMING)
 		    stream_size =(uint16_t) in->packets[0].data[VALUE_INDEX];

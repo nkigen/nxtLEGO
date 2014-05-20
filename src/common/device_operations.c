@@ -40,6 +40,11 @@ void bt_packet_end_connection(bt_packet_t *p) {
     p->packets[0].operation = BT_CLOSE_CONNECTION;
     p->packets[0].port		= DEFAULT_PORT;
 }
+void bt_packet_prep_control(bt_packet_t *p, uint8_t port, float vel){
+	p->packets[0].operation = BT_CONTROL_MODE;
+	p->packets[0].port	= port;
+	p->packets[0].data[VALUE_INDEX] = vel;
+}
 void bt_print_packet(bt_packet_t *p)
 {
     bt_req_t req = p->packets[0];

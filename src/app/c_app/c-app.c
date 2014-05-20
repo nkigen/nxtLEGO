@@ -192,9 +192,35 @@ int motor_handler(int c_sock, motor_opts_t *motor)
     handler_end_connection(c_sock, request, response);
     return 1;
 }
+
+inline int isControlMode(){
+	return options.m_control.desired_velocity > 0;
+}
+
+void startControlMode(int c_sock){
+
+    bt_packet_t request[1];
+    bt_packet_t response[1];
+
+    bt_packet_prep_control(request,options.m_control.port, options.m_control.desired_velocity);
+    int len;
+    len =  sizeof(bt_packet_t);
+    int rc = send(c_sock, request, len, 0);
+    if(rc < 0)
+    {
+        perror("c-app: failed to send motor fetch  packet");
+        
+    }
+    recv(c_sock, response, len, 0);  /*ignore the response*/
+    handler_end_connection(c_sock, request, response);
+
+}
 /*TODO: Get a better name for this function!!!*/
 int comm_handler(int c_sock)
 {
+	if(isControlMode())
+		startControlMode(c_sock);
+	else
     motor_handler(c_sock, &options.motor);
 }
 
