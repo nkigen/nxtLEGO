@@ -16,7 +16,6 @@ uint32_t bt_conn_status;
 uint16_t stream_size;
 uint16_t o_stream; //debugging
 uint8_t enable_streaming;
-uint8_t ts_read;
 uint8_t current_motor;
 uint8_t enable_controller;
 bt_packet_t incoming_packet[1];
@@ -61,13 +60,12 @@ void ecrobot_device_initialize()
 {
     ecrobot_init_bt_slave(DEVICE_PWD);
     timestamp = 0;
-    ts_read = 0;
     bt_conn_status = 0;
     num_packets = 0;
     stream_size = 0;
     o_stream = 0;
     enable_streaming = 0;
-    desired_velocity = 0;
+    desired_velocity = 6;
     current_velocity = 0;
     enable_controller = 0;
     reset_data_structs();
@@ -123,13 +121,13 @@ TASK(BtComm)
 }
 
 TASK(ControllerTask) {
-    static float pid_update = 0.0, lc_update=0.0;
-    float val, pwr;
-
+    static float lc_update=0.0;
+    float val;
+ current_motor = NXT_PORT_A;
+#if 0
     if(enable_controller == 0)
         TerminateTask();
-    e2 = e1;
-    e1 = e;
+#endif
 
     val = nxt_motor_get_count(current_motor);
     current_velocity = motorEncoder(val);
@@ -137,12 +135,15 @@ TASK(ControllerTask) {
     e = desired_velocity - current_velocity;
 
     /*Controller Implementation*/
-    pid_update = PIDControllerUpdate();
-    lc_update = LCControllerUpdate();
-    pwr = saturator(pid_update*lc_update);
-
+    lc_update = controllerUpdate();
+    u = saturator(lc_update);
     /*Update Plant*/
-    nxt_motor_set_speed(current_motor, pwr, 1);
+    nxt_motor_set_speed(current_motor, u, 1);
+
+    e2 = e1;
+    e1 = e;
+    u2 = u1;
+    u1 = u;
     TerminateTask();
 }
 TASK(DisplayTask)
@@ -166,12 +167,10 @@ TASK(DisplayTask)
     display_string("ssize:");
     display_goto_xy(9,3);
     display_unsigned(stream_size,6);
-    display_goto_xy(1,4);
-    display_string("velocity:");
-    display_goto_xy(11,4);
-    static uint32_t val= 0;
-   val = floorf(current_velocity);
-    display_unsigned(val,6);
+    display_goto_xy(1,5);
+    display_string("power:");
+    display_goto_xy(9,5);
+    display_unsigned(u,6);
 #endif
     TerminateTask();
 }

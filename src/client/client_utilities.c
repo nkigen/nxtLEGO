@@ -3,9 +3,10 @@
 #include "include/client_utilities.h"
 
 float e, e1, e2;
-float PID, LC;
+uint32_t u,u1,u2;
 uint32_t K;
-float I_k, D_k;
+float I_k;
+float D_k; //prev value for derivative
 float LP_k; //Previous value of filter
 inline float DegToRad(float rad)
 {
@@ -19,30 +20,27 @@ inline float RadToDeg(float deg)
 
 void init_controller() {
     K = 0;
-    PID = 0;
-    LC = 0;
     e =  e1 = e2 = 0;
-    I_k = D_k = 0;
+    u = u1 = u2 = 0;
+    I_k = LP_k = D_k = 0;
 
 }
+inline float quantizer(float val) {
+    return floorf(val);
+}
 
-inline float saturator(float val) {
+inline uint32_t saturator(float val) {
     if(val >MAX_POWER)
         val = MAX_POWER;
-    if(val < MIN_POWER)
+    else if(val < MIN_POWER)
         val = MIN_POWER;
-    return val;
+    return quantizer(val);
 }
 
-float PIDControllerUpdate() {
-    float pid_u = (TC*PID + KP*e - KP*e1 + KI*TC*TC*e + KD*e - 2*KD*e1+ KD*e2)/TC;
-    PID = pid_u;
-    return pid_u;
-}
 
-float LCControllerUpdate() {
-    float lc_u = LC_POLE*LC + e + LC_ZERO*e1;
-    LC = lc_u;
+
+float controllerUpdate() {
+    float lc_u =  -u1*Y - u2*W + e*Kc + e1*B*Kc + e2*A*Kc;
     return lc_u;
 }
 
@@ -52,30 +50,29 @@ inline float calcIntegral(float output) {
     return I;
 }
 
-inline float quantizer(float val) {
-    return floorf(val + 0.5);
-}
-
 inline float LPFilter(float val) {
-    float fd = LP_k + LP_k * LP_ALPHA  + LP_ALPHA*val;
+    float fd = LP_k + LP_k * LP_ALPHA  - LP_ALPHA*val;
     LP_k = fd;
     return fd;
 }
 
 inline float derivative(float val) {
-    return (val - LP_k)/TC;
+	float v =(val - D_k)/TC;
+	D_k = val;
+    return v; 
 }
 
 float motorEncoder(uint32_t count) {
-    if(K == 0)
-        return K;
+#if 0
     float integral = calcIntegral(count);
     float rad = DegToRad(integral);
     float quantized = quantizer(rad);
     float filt = LPFilter(quantized);
     float deg = RadToDeg(filt);
-    ++K;
-    return derivative(deg);
+#endif
 
+    float rad = DegToRad(count);
+    float filt = LPFilter(rad);
+    return derivative(filt);
 }
 
