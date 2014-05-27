@@ -65,7 +65,7 @@ void ecrobot_device_initialize()
     stream_size = 0;
     o_stream = 0;
     enable_streaming = 0;
-    desired_velocity = 6;
+    desired_velocity = 0;
     current_velocity = 0;
     enable_controller = 0;
     reset_data_structs();
@@ -121,15 +121,17 @@ TASK(BtComm)
 }
 
 TASK(ControllerTask) {
-    static float lc_update=0.0;
+    float lc_update=0.0;
     float val;
- current_motor = NXT_PORT_A;
-#if 0
+    //current_motor = NXT_PORT_A;
+#if 1
     if(enable_controller == 0)
         TerminateTask();
 #endif
 
     val = nxt_motor_get_count(current_motor);
+    if(val == 0 && K>0)
+        TerminateTask();
     current_velocity = motorEncoder(val);
     /*Update Error*/
     e = desired_velocity - current_velocity;
@@ -138,7 +140,14 @@ TASK(ControllerTask) {
     lc_update = controllerUpdate();
     u = saturator(lc_update);
     /*Update Plant*/
-    nxt_motor_set_speed(current_motor, u, 1);
+    if(u == 0){
+	    u = u1;
+        TerminateTask();
+    }
+
+    int input = quantizer(u);
+    nxt_motor_set_speed(current_motor, input, 1);
+    K++;
 
     e2 = e1;
     e1 = e;
@@ -170,7 +179,7 @@ TASK(DisplayTask)
     display_goto_xy(1,5);
     display_string("power:");
     display_goto_xy(9,5);
-    display_unsigned(u,6);
+    display_int(u,6);
 #endif
     TerminateTask();
 }

@@ -35,15 +35,20 @@ void bt_packet_start_stream(bt_packet_t *p, uint16_t nsamples) {
     p->packets[0].data[VALUE_INDEX] = (float)nsamples;
     p->packets[0].port	= DEFAULT_PORT;
 }
+void bt_packet_start_control_stream(bt_packet_t *p) {
+    p->packets[0].operation = BT_CONTROL_STREAM;
+    p->packets[0].port	= DEFAULT_PORT;
+}
 
 void bt_packet_end_connection(bt_packet_t *p) {
     p->packets[0].operation = BT_CLOSE_CONNECTION;
     p->packets[0].port		= DEFAULT_PORT;
 }
-void bt_packet_prep_control(bt_packet_t *p, uint8_t port, float vel){
+void bt_packet_prep_control(bt_packet_t *p, uint8_t port, float vel, uint16_t count){
 	p->packets[0].operation = BT_CONTROL_MODE;
 	p->packets[0].port	= port;
 	p->packets[0].data[VALUE_INDEX] = vel;
+	p->packets[0].data[TIMESTAMP_INDEX] = count;
 }
 void bt_print_packet(bt_packet_t *p)
 {
