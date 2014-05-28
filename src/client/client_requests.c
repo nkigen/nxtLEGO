@@ -4,15 +4,18 @@
 #include "kernel_id.h"
 #include "ecrobot_interface.h"
 
+#include "include/client_utilities.h"
 #include "include/client_req.h"
 
 #define GET_MOTOR_COUNT		GET_MOTOR_POWER
 extern uint32_t timestamp;
+extern float current_velocity;
 extern uint16_t stream_size;
 extern uint16_t o_stream;
 extern uint8_t current_motor;
 extern uint8_t enable_streaming;
 extern float desired_velocity;
+extern uint8_t enable_controller;
 static inline void bt_decode_port(uint8_t *in_port,uint8_t *out_port)
 {
     switch(*in_port)
@@ -72,9 +75,16 @@ static inline void bt_req_process(bt_req_t *in, bt_req_t *out)
         enable_streaming = 1;
         break;
     case BT_CONTROL_MODE:
-	enable_control = 1;
+      o_stream = stream_size =  in->data[TIMESTAMP_INDEX];
+	enable_controller = 1;
+	enable_streaming = 1;
 	current_motor = port;
 	desired_velocity = in->data[VALUE_INDEX];
+	break;
+    case BT_CONTROL_STREAM:
+        out->data[VALUE_INDEX] = current_velocity;
+	out->data[TIMESTAMP_INDEX] = systick_get_ms();
+//	out->data[TIMESTAMP_INDEX] = 
 	break;
 /*TODO: Add another case here for the velocity*/
     default:

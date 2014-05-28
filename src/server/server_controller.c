@@ -119,9 +119,10 @@ int controller_process_req(bt_packet_t *in, bt_packet_t *out,int *client_sock, i
     switch(operation) {
     case BT_START_STREAMING:
     case BT_END_STREAMING:
+    case BT_CONTROL_MODE:
     case SET_MOTOR_POWER: /*Just foward these requests to NXT Lego because no streaming is needed*/
-	    if(operation == BT_START_STREAMING)
-		    stream_size =(uint16_t) in->packets[0].data[VALUE_INDEX];
+	    if(operation == BT_START_STREAMING || operation == BT_CONTROL_MODE)
+		    stream_size =(uint16_t) in->packets[0].data[TIMESTAMP_INDEX];
         server_client_bt(in, out, bt_sock);
         rc = send(*client_sock, out, len, 0);
         if(rc < 0)
@@ -136,7 +137,7 @@ int controller_process_req(bt_packet_t *in, bt_packet_t *out,int *client_sock, i
     default:
         break;
     }
-    /*Here we are dealing with GET_MOTOR_POWER*/
+    /*Here we are dealing with GET_MOTOR_POWER and BT_CONTROL_STREAM*/
 printf("Streaming mode activated stream size %d\n", stream_size);
     uint16_t i = 0;
     server_send_bt(in,bt_sock);

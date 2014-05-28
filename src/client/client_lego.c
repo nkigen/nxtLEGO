@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include<inttypes.h>
+#include<math.h>
 
 #include "include/client_lego.h"
 #include "include/client_req.h"
 #include "../common/include/bt_packet.h"
+#include "include/client_utilities.h"
 
 #define unlikely(x)     __builtin_expect((x),0)
 /*************GLOBAL VARIABLES**********/
@@ -14,7 +16,6 @@ uint32_t bt_conn_status;
 uint16_t stream_size;
 uint16_t o_stream; //debugging
 uint8_t enable_streaming;
-uint8_t ts_read;
 uint8_t current_motor;
 uint8_t enable_controller;
 bt_packet_t incoming_packet[1];
@@ -59,7 +60,6 @@ void ecrobot_device_initialize()
 {
     ecrobot_init_bt_slave(DEVICE_PWD);
     timestamp = 0;
-    ts_read = 0;
     bt_conn_status = 0;
     num_packets = 0;
     stream_size = 0;
@@ -121,23 +121,38 @@ TASK(BtComm)
 }
 
 TASK(ControllerTask) {
-    static float pid_update = 0.0, lc_update=0.0;
-    float val, pwr;
-
+    float lc_update=0.0;
+    float val;
+    //current_motor = NXT_PORT_A;
+#if 1
     if(enable_controller == 0)
         TerminateTask();
-    e2 = e1;
-    e1 = e;
-    /*Controller Implementation*/
-    pid_update = PIDControllerUpdate();
-    lc_update = LCControllerUpdate();
-    pwr = saturator(pid_update*lc_update);
-    /*Update Plant*/
-    nxt_motor_set_speed(pwr);
+#endif
+
     val = nxt_motor_get_count(current_motor);
+    if(val == 0 && K>0)
+        TerminateTask();
     current_velocity = motorEncoder(val);
     /*Update Error*/
     e = desired_velocity - current_velocity;
+
+    /*Controller Implementation*/
+    lc_update = controllerUpdate();
+    u = saturator(lc_update);
+    /*Update Plant*/
+    if(u == 0){
+	    u = u1;
+        TerminateTask();
+    }
+
+    int input = quantizer(u);
+    nxt_motor_set_speed(current_motor, input, 1);
+    K++;
+
+    e2 = e1;
+    e1 = e;
+    u2 = u1;
+    u1 = u;
     TerminateTask();
 }
 TASK(DisplayTask)
@@ -161,10 +176,10 @@ TASK(DisplayTask)
     display_string("ssize:");
     display_goto_xy(9,3);
     display_unsigned(stream_size,6);
-    display_goto_xy(1,4);
-    display_string("operation:");
-    display_goto_xy(11,4);
-    display_unsigned(o_stream,6);
+    display_goto_xy(1,5);
+    display_string("power:");
+    display_goto_xy(9,5);
+    display_int(u,6);
 #endif
     TerminateTask();
 }

@@ -47,6 +47,17 @@ int main(int argc, char **argv)
         printf("server: initialized bluetooth\n");
 
     /*TODO:URGENT !!!  pick one of the bluetooth devices and initiate a connection*/
+    int pos,i = 0;
+    while(i < MAX_BT_DEVICES)
+    {
+	    if(devices[i]->name[0] == 'D')
+	    {
+		    pos = i;
+		    break;
+	    }
+	    else
+		    i++;
+    }
     rc =  bt_connect_device(&bt_sock, &devices[0]->device_addr);
     if(rc < 0)
     {

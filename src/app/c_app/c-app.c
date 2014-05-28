@@ -9,12 +9,23 @@
 #include "include/app_log.h"
 
 #define LOG_FILE			"log_power_\0"
+#define CONTROL_LOG_FILE		"control_\0"
 
 /*******GLOBAL VARIABLES***********/
 app_options_t options;
 
 /*TODO:*/
 
+void get_control_log_file(int velocity, char *fname)
+{
+    strcpy(fname,CONTROL_LOG_FILE);
+    char buf[10];
+
+    sprintf(buf, "%d", velocity);
+    strcat(fname,buf);
+    printf("Using logfile:",fname);
+    /*TODO:complete this*/
+}
 void get_log_file(int power, char *fname)
 {
     strcpy(fname,LOG_FILE);
@@ -104,7 +115,7 @@ int handler_get_motor_count(int c_sock, bt_packet_t *req, bt_packet_t *res, moto
         }
         else
         {
-                log_motor_packet(LOG_FILE, res);
+            log_motor_packet(LOG_FILE, res);
         }
     } while(++i < count);
 
@@ -116,7 +127,7 @@ int handler_start_motor_stream(int c_sock, bt_packet_t *req, bt_packet_t *res, u
     bt_packet_start_stream(req, nsamples);
     int len;
     len =  sizeof(bt_packet_t);
-   int  rc = send(c_sock, req, len, 0);
+    int  rc = send(c_sock, req, len, 0);
     if(rc < 0)
     {
         perror("c-app: failed to send motor fetch  packet");
@@ -124,9 +135,9 @@ int handler_start_motor_stream(int c_sock, bt_packet_t *req, bt_packet_t *res, u
     }
     rc = recv(c_sock, res, len, 0);  /*ignore the response*/
     if(rc < 0)
-	    perror("stream reply not recvd");
+        perror("stream reply not recvd");
     else
-	    printf("stream reply recvd\n");
+        printf("stream reply recvd\n");
     return 0;
 }
 
@@ -179,10 +190,10 @@ int motor_handler(int c_sock, motor_opts_t *motor)
             _stop = 1;
 
         handler_set_motor_power(c_sock, request, response, motor, power);
-	handler_start_motor_stream(c_sock, request, response, motor->num_samples);
+        handler_start_motor_stream(c_sock, request, response, motor->num_samples);
 
         handler_get_motor_count(c_sock, request, response, motor, motor->num_samples);/*get and log the motor revs*/
-	handler_end_motor_stream(c_sock, request, response);
+        handler_end_motor_stream(c_sock, request, response);
         /*Reset Motor to zero and pause for 3 seconds before changing the power value*/
         handler_set_motor_power(c_sock, request, response, motor, 0);
         end_log();
@@ -192,10 +203,67 @@ int motor_handler(int c_sock, motor_opts_t *motor)
     handler_end_connection(c_sock, request, response);
     return 1;
 }
+
+inline int isControlMode() {
+    return options.m_control.desired_velocity > 0;
+}
+
+int fetchControlData(int c_sock, bt_packet_t *req, bt_packet_t *res, int nsamples) {
+    int i = 0;
+    int rc;
+    int len;
+    len =  sizeof(bt_packet_t);
+    char fname[12];
+    bt_packet_start_control_stream(req);
+    get_control_log_file(options.m_control.desired_velocity,fname);
+    init_log(fname);
+    rc = send(c_sock, req, len, 0);
+    if(rc < 0)
+    {
+        perror("c-app: failed to start control stream  packet");
+    //    return ;
+    }
+        rc = recv(c_sock, res, len, 0);
+    while(i < nsamples) {
+        rc = recv(c_sock, res, len, 0);
+        if(rc < 0)
+            perror("Fetch control data error");
+        else
+            log_control_packet(res);
+        ++i;
+    }
+    end_log();
+}
+
+void startControlMode(int c_sock) {
+
+    bt_packet_t request[1];
+    bt_packet_t response[1];
+    uint16_t sz = 1000;
+
+    bt_packet_prep_control(request,options.m_control.port, options.m_control.desired_velocity, sz);
+    int len;
+    len =  sizeof(bt_packet_t);
+    int rc = send(c_sock, request, len, 0);
+    if(rc < 0)
+    {
+        perror("c-app: failed to send motor fetch  packet");
+
+    }
+    recv(c_sock, response, len, 0);  /*ignore the response*/
+
+    /*Get Velocity Data*/
+    fetchControlData(c_sock, request, response, sz);
+    handler_end_connection(c_sock, request, response);
+
+}
 /*TODO: Get a better name for this function!!!*/
 int comm_handler(int c_sock)
 {
-    motor_handler(c_sock, &options.motor);
+    if(isControlMode())
+        startControlMode(c_sock);
+    else
+        motor_handler(c_sock, &options.motor);
 }
 
 /*TODO: Implement this*/

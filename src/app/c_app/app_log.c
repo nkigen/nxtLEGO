@@ -19,6 +19,11 @@ int log_motor_packet(char *fname, bt_packet_t *p)
     return 0;
 }
 
+int log_control_packet(bt_packet_t *p)
+{
+    fprintf(fp, "%f %f\n",p->packets[0].data[VALUE_INDEX],p->packets[0].data[TIMESTAMP_INDEX]);
+    return 0;
+}
 int end_log()
 {
     return fclose(fp);

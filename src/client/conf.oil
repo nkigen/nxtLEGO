@@ -26,7 +26,7 @@ CPU ATMEL_AT91SAM7S256
     TASK BtComm
     {
         AUTOSTART = FALSE;
-        PRIORITY = 3;
+        PRIORITY = 2;
         ACTIVATION = 1;
         SCHEDULE = FULL;
         STACKSIZE = 512;
@@ -35,7 +35,7 @@ CPU ATMEL_AT91SAM7S256
     TASK ControllerTask
     {
         AUTOSTART = FALSE;
-        PRIORITY = 2;
+        PRIORITY = 3;
         ACTIVATION = 1;
         SCHEDULE = FULL;
         STACKSIZE = 512;
@@ -84,7 +84,7 @@ CPU ATMEL_AT91SAM7S256
         AUTOSTART = TRUE
         {
             ALARMTIME = 1;
-            CYCLETIME = 2;  // 2ms run time
+            CYCLETIME = 1;  // 1ms run time
             APPMODE = appmode1;
         };
     };
