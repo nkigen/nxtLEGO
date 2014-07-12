@@ -33,6 +33,7 @@ void bt_packet_end_stream(bt_packet_t *p) {
 void bt_packet_start_stream(bt_packet_t *p, uint16_t nsamples) {
     p->packets[0].operation = BT_START_STREAMING;
     p->packets[0].data[VALUE_INDEX] = (float)nsamples;
+    p->packets[0].data[TIMESTAMP_INDEX] = (float)nsamples;
     p->packets[0].port	= DEFAULT_PORT;
 }
 void bt_packet_start_control_stream(bt_packet_t *p) {

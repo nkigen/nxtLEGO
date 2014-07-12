@@ -76,8 +76,19 @@ int main(int argc, char **argv)
     else
         printf("server: initilization complete....\n");
 
-    /*wait for connections*/
 
+    while(1){
+         rc = recv(bt_sock,incoming,sizeof(incoming),0);
+	 if( rc < 0)
+	 {
+	 }
+	 else
+	 {
+		 printf("Distance %lf, Time %lf\n", incoming->packets[0].data[0], incoming->packets[0].data[1]);
+	 }
+    }
+    /*wait for connections*/
+#if 0
     printf("server: waiting for connection...\n");
     rc = controller_accept_conn(&server_sock, &client_sock);
     if( rc < 0)
@@ -105,7 +116,7 @@ int main(int argc, char **argv)
             conn_status = rc;
 
     } while(!conn_status);
-
+#endif
     /*close connections*/
     return 0;
 }

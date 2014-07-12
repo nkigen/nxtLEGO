@@ -4,7 +4,9 @@ TARGET = nxtLEGO_client
 TARGET_SOURCES := \
 	client_requests.c \
 	client_lego.c \
-	client_utilities.c
+	client_utilities.c \
+	cbArray.c	\
+	sensors.c
 TOPPERS_OSEK_OIL_SOURCE := ./conf.oil
 
 O_PATH ?= build
