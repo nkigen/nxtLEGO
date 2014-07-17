@@ -65,6 +65,8 @@ static int get_next_motor_power(motor_opts_t *motor)
 int start_app(char *buf, int size, int *c_sock)
 {
     int rc;
+    options.m_control = {0,0};
+	    options.motor = {0,0,0,0};
     rc = decode_options(buf, &options);
     if( rc < 0)
     {
@@ -135,9 +137,14 @@ int handler_start_motor_stream(int c_sock, bt_packet_t *req, bt_packet_t *res, u
     }
     rc = recv(c_sock, res, len, 0);  /*ignore the response*/
     if(rc < 0)
-        perror("stream reply not recvd");
+        perror("c-app: stream reply not recvd");
     else
-        printf("stream reply recvd\n");
+        printf("c-app: stream reply recvd\n");
+    return 0;
+}
+
+    else
+        printf("c-app: stream reply recvd\n");
     return 0;
 }
 
@@ -154,6 +161,7 @@ int handler_end_connection(int c_sock, bt_packet_t *req, bt_packet_t *res) {
     recv(c_sock, res, len, 0);  /*ignore the response*/
     return 0;
 }
+
 int handler_end_motor_stream(int c_sock, bt_packet_t *req, bt_packet_t *res) {
     bt_packet_end_stream(req);
     int len;
@@ -198,8 +206,9 @@ int motor_handler(int c_sock, motor_opts_t *motor)
         handler_set_motor_power(c_sock, request, response, motor, 0);
         end_log();
         sleep(3);
-    } while( !_stop);
+    } while(!_stop);
     /*Now send the BT_END_CONNECTION to terminate the server*/
+    printf("c-app: Terminating connection to server...\n");
     handler_end_connection(c_sock, request, response);
     return 1;
 }
@@ -221,9 +230,9 @@ int fetchControlData(int c_sock, bt_packet_t *req, bt_packet_t *res, int nsample
     if(rc < 0)
     {
         perror("c-app: failed to start control stream  packet");
-    //    return ;
+        //    return ;
     }
-        rc = recv(c_sock, res, len, 0);
+    rc = recv(c_sock, res, len, 0);
     while(i < nsamples) {
         rc = recv(c_sock, res, len, 0);
         if(rc < 0)
@@ -259,13 +268,6 @@ void startControlMode(int c_sock) {
 }
 /*TODO: Get a better name for this function!!!*/
 int comm_handler(int c_sock)
-{
-    if(isControlMode())
-        startControlMode(c_sock);
-    else
-        motor_handler(c_sock, &options.motor);
-}
-
 /*TODO: Implement this*/
 int close_app()
 {

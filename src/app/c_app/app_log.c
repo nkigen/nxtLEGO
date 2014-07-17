@@ -15,14 +15,12 @@ int init_log(char *fname)
  * format: <timestamp> <count> <motor power>*/
 int log_motor_packet(char *fname, bt_packet_t *p)
 {
-    fprintf(fp, "%f  %d\n", p->packets[0].data[TIMESTAMP_INDEX],(int) p->packets[0].data[VALUE_INDEX]);
-    return 0;
+    return fprintf(fp, "%f  %d\n", p->packets[0].data[TIMESTAMP_INDEX],(int) p->packets[0].data[VALUE_INDEX]);
 }
 
 int log_control_packet(bt_packet_t *p)
 {
-    fprintf(fp, "%f %f\n",p->packets[0].data[VALUE_INDEX],p->packets[0].data[TIMESTAMP_INDEX]);
-    return 0;
+    return fprintf(fp, "%f %f\n",p->packets[0].data[VALUE_INDEX],p->packets[0].data[TIMESTAMP_INDEX]);
 }
 int end_log()
 {

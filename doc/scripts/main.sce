@@ -4,9 +4,9 @@ global fname; // used by analysis.sce
 global imgname;
 global StepValue;
 global DATA_PATH;
-DATA_PATH = '../data/set_par/';
+DATA_PATH = '../data/data_left/';
 global IMAGES_PATH;
-IMAGES_PATH = '../images/';
+IMAGES_PATH = '../images/left_motor';
 
 global CURRENT_POWER; //Current power being analysed
 
@@ -17,22 +17,22 @@ global OverShoot; //overshoot
 global xi_est;
 global omega_n;
 global xi_n;
-data_prefix = 'log_power_'; //filename prefix
-dataFiles = ['10','20','30','40','50','60','70','80','90','100']; //list of data files
+data_prefix = 'power_'; //filename prefix
+dataFiles = ['20','30','40','50','60','70','80','90','100']; //list of data files
 
 //get size
 _ff = size(dataFiles);
 fsize =_ff(2);
 
 //"pass" the files to analysis.sce
-Mfd = mopen('../data/params.dat', 'w');
+Mfd = mopen('../data/params_left.dat', 'w');
 if Mfd == -1 then
     error("Failed to open params file for writing");
 end
 
 for i=1:fsize
     CURRENT_POWER = strtod(dataFiles(i));
-    fname = DATA_PATH + data_prefix + dataFiles(i);
+    fname = DATA_PATH + data_prefix + dataFiles(i)+'.data';
     imgname= IMAGES_PATH+dataFiles(i);
     exec('analysis.sce', -1);
     mfprintf(Mfd,"%d %f %f %f %f\n",CURRENT_POWER,xi_est,omega_est,st_est,OverShoot);
@@ -40,7 +40,7 @@ end
 mclose(Mfd);
 
 //Plot the power values
-fd =mopen('../data/params.dat','r');
+fd =mopen('../data/params_left.dat','r');
 if fd == -1 then
     error("Failed to open file for reading");
 end

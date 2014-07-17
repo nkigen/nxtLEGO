@@ -1,5 +1,5 @@
 global fname;
-//fname = '../data/log_power_10';
+//fname = '../data/data_left/power_40.data';
 global imgname;
 global DATA_PATH;
 global IMAGES_PATH;
@@ -10,21 +10,9 @@ global xi_est;
 global q_n;
 global omega_est; //omega_est
 global OverShoot; //overshoot
-
-LpAlpha = 0.58; //Alpha value for filter
-sAlpha = 0.05; //Settling time alpha (10%)
+sAlpha = 0.05; //Settling time alpha (5%)
 global StepValue;
 StepValue = 0.001;  
-
-//Exponential Filter
-    function [efdata] =ExponentialFilter(alph,avg)
-        fdata = zeros(avg);
-        fdata(1) = avg(1);
-        for i=2:length(avg)
-            fdata(i)=alph*avg(i)+(1-alph)*avg(i-1);
-        end
-        efdata=fdata;
-    endfunction
     
 //Open and Read file
 fd = mopen(fname,'r');
@@ -39,10 +27,10 @@ pos = 1;
 i = 0;
 mdata = []; //declare an empty matrix 
 while isEOF <> 1
-    [n, rev, ts] = mfscanf(fd,"%f %f");
+    [n, rev, ts] = mfscanf(fd,"%lf %lf");
     if n > 0 then
         mdata(pos,1) = rev;
-        mdata(pos,2) = ts * 0.001;//i;//ts; //change i to ts to get the real timestamp from the lego
+        mdata(pos,2) = ts * 0.001;
         pos = pos + 1;
         i = i + StepValue;
     else
@@ -59,13 +47,13 @@ if mdata(1,2) <> 0 then
     end
 end
 
-//Average values with the same timestamp
+//Average values with the same timestamp (if exists)
 avg =  [];
 t = [];
 
 index = 1;
 i = 1;
-while i < length(mdata(:,1)) - 1
+while i < length(mdata(:,1)) - 1 
     tv = mdata(i,1);
     ts = mdata(i,2);
     j = i+1;
@@ -91,8 +79,7 @@ clf(hf,'clear');
 plot(t,avg,'b');
 xs2png(hf, imgname+'_original.png');
 
-//Apply LowPassFilter
-fdata=ExponentialFilter(LpAlpha,avg);
+fdata = avg;
 
 //plot filtered data
  hf = scf(1);
@@ -101,7 +88,7 @@ fdata=ExponentialFilter(LpAlpha,avg);
 
 //Tachometer estimation
 y = zeros(1,length(t));
-MaxCount =750;//round(length(t)/10);
+MaxCount =20;//round(length(t)/10);
 //MaxCount = 1;
 for i=2:length(fdata)
     if i <= MaxCount
@@ -119,6 +106,16 @@ hf = scf(2);
 clf(hf);
 plot(t, y, 'm');
 
+/////////////////////////////////////////////////////////
+//filter
+[pols, gain] = zpbutt(3,10); //Filter
+H = gain/(real(poly(pols,'s'))); 
+Tc = 0.002;
+H_C = ss2tf(dscr(H,Tc));
+filt = filter(H_C.num,H_C.den,y);
+plot(t,filt,'r');
+y = filt;
+////////////////////////////////////////////////////////
 
 //estimate final value, 
 MaxY = max(y);
@@ -142,13 +139,12 @@ for i=length(y):-1:1
 end
 
 st_est = t(_index) + StepValue/2;
-
 q_n = st_est;
+
 //omega_est
 Nb = 1/sqrt(1 - xi_est^2);
 omega_est = (log(sAlpha) - log(Nb))/(-xi_est*st_est);
 
-hf = scf(2);
 plot([st_est,st_est],[min(y),max(y)],'g--');
 plot(t, YMTs*ones(1,size(t,2)), 'r--');
 plot(t, YmTs*ones(1,size(t,2)), 'r--');

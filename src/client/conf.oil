@@ -32,13 +32,41 @@ CPU ATMEL_AT91SAM7S256
         STACKSIZE = 512;
     };
 
-    TASK ControllerTask
+    TASK RightMotorControl
+    {
+        AUTOSTART = FALSE;
+        PRIORITY = 4;
+        ACTIVATION = 1;
+        SCHEDULE = FULL;
+        STACKSIZE = 512;
+    };
+
+    TASK LeftMotorControl
+    {
+        AUTOSTART = FALSE;
+        PRIORITY = 4;
+        ACTIVATION = 1;
+        SCHEDULE = FULL;
+        STACKSIZE = 512;
+    };
+
+    TASK UnicycleControl
     {
         AUTOSTART = FALSE;
         PRIORITY = 3;
         ACTIVATION = 1;
         SCHEDULE = FULL;
         STACKSIZE = 512;
+    };
+
+    TASK SensorTask
+    {
+        AUTOSTART = FALSE;
+        PRIORITY = 1;
+        ACTIVATION = 1;
+        SCHEDULE = FULL;
+        STACKSIZE = 512;
+        RESOURCE = RES_LCD;
     };
 
     TASK DisplayTask
@@ -69,25 +97,70 @@ CPU ATMEL_AT91SAM7S256
         AUTOSTART = TRUE
         {
             ALARMTIME = 1;
-            CYCLETIME = 2;  // 2ms run time
+            CYCLETIME = 4;  // 2ms run time
             APPMODE = appmode1;
         };
     };
 
-    ALARM CONTROLLER_ALARM
+    ALARM SENSOR_ALARM
     {
         COUNTER = SysTimerCnt;
         ACTION = ACTIVATETASK
         {
-            TASK = ControllerTask;
+            TASK = SensorTask;
         };
         AUTOSTART = TRUE
         {
             ALARMTIME = 1;
-            CYCLETIME = 1;  // 1ms run time
+            CYCLETIME = 5;  // 5ms run time
             APPMODE = appmode1;
         };
     };
+
+    ALARM LEFT_MOTOR_ALARM
+    {
+        COUNTER = SysTimerCnt;
+        ACTION = ACTIVATETASK
+        {
+            TASK = LeftMotorControl;
+        };
+        AUTOSTART = TRUE
+        {
+            ALARMTIME = 1;
+            CYCLETIME = 2;  // 1ms run time
+            APPMODE = appmode1;
+        };
+    };
+    ALARM RIGHT_MOTOR_ALARM
+    {
+        COUNTER = SysTimerCnt;
+        ACTION = ACTIVATETASK
+        {
+            TASK = RightMotorControl;
+        };
+        AUTOSTART = TRUE
+        {
+            ALARMTIME = 1;
+            CYCLETIME = 2;  // 1ms run time
+            APPMODE = appmode1;
+        };
+    };
+    ALARM UNICYCLE_ALARM
+    {
+        COUNTER = SysTimerCnt;
+        ACTION = ACTIVATETASK
+        {
+            TASK = UnicycleControl;
+        };
+        AUTOSTART = TRUE
+        {
+            ALARMTIME = 1;
+            CYCLETIME = 50;  // 1ms run time
+            APPMODE = appmode1;
+        };
+    };
+
+
 
     ALARM LCD_UPDATE_ALARM
     {

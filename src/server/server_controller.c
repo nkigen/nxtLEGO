@@ -132,7 +132,7 @@ int controller_process_req(bt_packet_t *in, bt_packet_t *out,int *client_sock, i
         }
         return 0;
     case BT_CLOSE_CONNECTION:
-        printf("Connection to client terminated");
+        printf("Connection to client terminated\n");
         return 1; /*1 indicates connection has been terminated*/
     default:
         break;

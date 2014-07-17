@@ -8,13 +8,17 @@
 #include "include/client_req.h"
 
 #define GET_MOTOR_COUNT		GET_MOTOR_POWER
+
+/*******GLOBAL VARIABLES*************/
 extern uint32_t timestamp;
-extern float current_velocity;
+extern float current_velocity_left;
+extern float u_left;
+extern float e_left;
 extern uint16_t stream_size;
 extern uint16_t o_stream;
 extern uint8_t current_motor;
 extern uint8_t enable_streaming;
-extern float desired_velocity;
+extern float desired_velocity_left;
 extern uint8_t enable_controller;
 static inline void bt_decode_port(uint8_t *in_port,uint8_t *out_port)
 {
@@ -62,9 +66,9 @@ static inline void bt_req_process(bt_req_t *in, bt_req_t *out)
         break;
     case GET_MOTOR_COUNT:
 	out->data[VALUE_INDEX] = nxt_motor_get_count(port);
-	out->data[TIMESTAMP_INDEX] = timestamp;
+	//out->data[TIMESTAMP_INDEX] = timestamp;
         //out->data[TIMESTAMP_INDEX] = timestamp;
-       // out->data[TIMESTAMP_INDEX] = systick_get_ms();
+        out->data[TIMESTAMP_INDEX] = systick_get_ms();
         break;
     case BT_END_STREAMING:
         enable_streaming = 0;
@@ -79,11 +83,11 @@ static inline void bt_req_process(bt_req_t *in, bt_req_t *out)
 	enable_controller = 1;
 	enable_streaming = 1;
 	current_motor = port;
-	desired_velocity = in->data[VALUE_INDEX];
+	desired_velocity_left = in->data[VALUE_INDEX];
 	break;
     case BT_CONTROL_STREAM:
-        out->data[VALUE_INDEX] = current_velocity;
-	out->data[TIMESTAMP_INDEX] = systick_get_ms();
+        out->data[VALUE_INDEX] = u_left;//current_velocity;
+	out->data[TIMESTAMP_INDEX] = e_left;//systick_get_ms();
 //	out->data[TIMESTAMP_INDEX] = 
 	break;
 /*TODO: Add another case here for the velocity*/
