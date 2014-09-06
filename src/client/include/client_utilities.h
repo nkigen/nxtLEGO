@@ -1,17 +1,17 @@
 #ifndef __CLIENT_UTILITIES_H__
 #define __CLIENT_UTILITIES_H__
 #include <stdint.h>
-#define TC		0.001
+#define TC		0.002
 #define LP_ALPHA 	0.62
 #define MAX_POWER	100
 #define MIN_POWER	-100
 
 /*Controller values*/
-#define Kc	40
-#define A	-1.9778667
-#define B	 0.9779244
-#define X	-1.9231163
-#define Y	 0.9231163
+#define Kc	1//40
+#define A	1.954
+#define B	0.95424
+#define X	1.84
+#define Y	0.84
 
 #define MOTOR_LEFT	0
 #define MOTOR_RIGHT	1

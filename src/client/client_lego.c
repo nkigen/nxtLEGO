@@ -76,9 +76,9 @@ void ecrobot_device_initialize()
     stream_size = 0;
     o_stream = 0;
     enable_streaming = 0;
-    desired_velocity_left = 0;
+    desired_velocity_left = 6;
     current_velocity_left = 0;
-    desired_velocity_right = 0;
+    desired_velocity_right = 6;
     current_velocity_right = 0;
     enable_controller = 1;
     reset_data_structs();
@@ -117,7 +117,7 @@ void user_1ms_isr_type2(void)
 
 TASK(BtComm)
 {
-	/*
+    /*
     if(stream_size == 0 || enable_streaming == 1)
         bt_conn_status = bt_read((U8*)incoming_packet, 0, sizeof(bt_packet_t));
 
@@ -137,7 +137,7 @@ TASK(BtComm)
     outgoing_packet->packets[0].data[VALUE_INDEX] = sonar_ds;
     outgoing_packet->packets[0].data[TIMESTAMP_INDEX] = sonar_ts;
     bt_send((U8*)outgoing_packet, (U32)sizeof(bt_packet_t));
-	
+
     TerminateTask();
 }
 
@@ -154,8 +154,8 @@ TASK(UnicycleControl) {
 }
 
 TASK(SensorTask) {
-    S32 val = ecrobot_get_sonar_sensor(NXT_PORT_S4);
-    sonar_record(val, systick_get_ms());
+//    S32 val = ecrobot_get_sonar_sensor(NXT_PORT_S4);
+//    sonar_record(val, systick_get_ms());
 
     TerminateTask();
 }
@@ -170,9 +170,10 @@ TASK(RightMotorControl) {
 #endif
 
     val = nxt_motor_get_count(NXT_PORT_B);
-    /*If val is <= 0 -> Nothing to do just terminate in peace*/
-    if(val == 0 && K_right > 0) 
-        TerminateTask();
+    /*If val is <= 0 -> Nothing to do just terminate in peace
+     * K_right is just a counter => #executions/updates*/
+    // if(val == 0 && K_right > 0)
+    //    TerminateTask();
     current_velocity_right = motorEncoder(val, MOTOR_RIGHT);
     /*Update Error*/
     e_right = desired_velocity_right - current_velocity_right;
@@ -182,16 +183,16 @@ TASK(RightMotorControl) {
     u_right = saturator(lc_update);
     /*Update Plant*/
     int input = quantizer(u_right);
-    if(input != 0 && input != quantizer(u1_right)) { /*Avoid setting same speed twice !!*/
-        nxt_motor_set_speed(NXT_PORT_B, input, 1);
-        e2_right = e1_right;
-        e1_right = e_right;
-        u2_right = u1_right;
-        u1_right = u_right;
-    }
+    // if(input != 0 && input != quantizer(u1_right)) { /*Avoid setting same speed twice !!*/
+    nxt_motor_set_speed(NXT_PORT_B, input, 1);
+    e2_right = e1_right;
+    e1_right = e_right;
+    u2_right = u1_right;
+    u1_right = u_right;
+    //  }
 
-    if(unlikely(K_right == UINT32_MAX))
-	    K_right = 0;
+//   if(unlikely(K_right == UINT32_MAX))
+//	    K_right = 0;
     K_right++;
     TerminateTask();
 }
@@ -199,15 +200,14 @@ TASK(RightMotorControl) {
 TASK(LeftMotorControl) {
     float lc_update = 0.0;
     int val;
-    //current_motor = NXT_PORT_A;
 #if 1
     if(enable_controller == 0)
         TerminateTask();
 #endif
 
     val = nxt_motor_get_count(NXT_PORT_C);
-    if(val == 0 && K_left > 0)
-        TerminateTask();
+    //  if(val == 0 && K_left > 0)
+    //      TerminateTask();
     current_velocity_left = motorEncoder(val, MOTOR_LEFT);
     /*Update Error*/
     e_left = desired_velocity_left - current_velocity_left;
@@ -217,15 +217,15 @@ TASK(LeftMotorControl) {
     u_left = saturator(lc_update);
     /*Update Plant*/
     int input = quantizer(u_left);
-    if(input != 0 && input != quantizer(u1_left)) { /*Avoid setting same speed twice !!*/
-        nxt_motor_set_speed(NXT_PORT_C, input, 1);
-        e2_left = e1_left;
-        e1_left = e_left;
-        u2_left = u1_left;
-        u1_left = u_left;
-    }
-    if(unlikely(k_left == UINT32_MAX))
-	    k_left = 0;
+//    if(input != 0 && input != quantizer(u1_left)) { /*Avoid setting same speed twice !!*/
+    nxt_motor_set_speed(NXT_PORT_C, input, 1);
+    e2_left = e1_left;
+    e1_left = e_left;
+    u2_left = u1_left;
+    u1_left = u_left;
+//   }
+    //if(unlikely(K_left == UINT32_MAX))
+//	    K_left = 0;
     K_left++;
     TerminateTask();
 }
@@ -247,7 +247,7 @@ TASK(DisplayTask)
     display_goto_xy(1,3);
     display_string("ssize:");
     display_goto_xy(9,3);
-    display_unsigned(stream_size,6);
+    display_unsigned(K_left,6);
     display_goto_xy(1,5);
     display_string("power:");
     display_goto_xy(9,5);
