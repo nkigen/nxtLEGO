@@ -123,15 +123,22 @@ TASK(BtComm)
 TASK(RightMotorControl) {
 	static double pos;
 	static double power;
+	static double pos_l;
+	static double power_l;
 	pos = nxt_get_count(NXT_PORT_A);
         pos = toRadians(pos); /*Convert pos to radians*/
+	pos_l = nxt_get_count(NXT_PORT_B);
+        pos_l = toRadians(pos_l); /*Convert pos to radians*/
 	/*Get current speed*/	
 	derivative(&right_motor, pos);
+	derivative(&left_motor, pos_l);
 	/*Update the controller*/
 	power = controllerUpdate(&right_motor,(right_motor.dVel - right_motor.cVel));
+	power_l = controllerUpdate(&left_motor,(left_motor.dVel - left_motor.cVel));
 
 	/*Update motor power*/
 	nxt_motor_set_speed(NXT_PORT_A,saturator(power));
+	nxt_motor_set_speed(NXT_PORT_B,saturator(power_l));
     TerminateTask();
 }
 
