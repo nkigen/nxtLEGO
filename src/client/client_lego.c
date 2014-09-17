@@ -3,8 +3,6 @@
 #include <string.h>
 #include<inttypes.h>
 #include<math.h>
-
-#include "include/sensors.h"
 #include "include/client_lego.h"
 #include "include/client_req.h"
 #include "../common/include/bt_packet.h"
@@ -31,11 +29,13 @@ uint32_t num_packets; /*Number of bt packets received/sent successfully*/
 
 DeclareCounter(SysTimerCnt);
 DeclareTask(BtComm);
-DeclareTask(RightMotorControl);
+DeclareTask(MotorControl);
+DeclareTask(UnicycleController);
 DeclareTask(DisplayTask);
 DeclareResource(RES_LCD);
 DeclareAlarm(BT_COMM_ALARM);
-DeclareAlarm(RIGHT_CONTROL_ALARM);
+DeclareAlarm(CONTROL_ALARM);
+DeclareAlarm(UNICYCLE_ALARM);
 DeclareAlarm(LCD_UPDATE_ALARM);
 
 
@@ -53,6 +53,15 @@ static void reset_motor_power()
 }
 
 
+/*Position Estimation Algorithm*/
+
+double getPositionFromWall(UNICYCLE_CONTROLLER *uc) {
+    static double sonar;
+    sonar = ecrobot_get_sonar_sensor(NXT_PORT_S4);
+
+    return sonar;
+}
+
 /****Initialize DEVICE*****/
 void ecrobot_device_initialize()
 {
@@ -68,6 +77,7 @@ void ecrobot_device_initialize()
     reset_motor_power();
     init_controller(&left_motor);
     init_controller(&right_motor);
+    initUnicycle(&unicycle_controller);
 }
 
 
@@ -120,32 +130,41 @@ TASK(BtComm)
     TerminateTask();
 }
 
-TASK(RightMotorControl) {
-	static double pos;
-	static double power;
-	static double pos_l;
-	static double power_l;
-	pos = nxt_get_count(NXT_PORT_A);
-        pos = toRadians(pos); /*Convert pos to radians*/
-	pos_l = nxt_get_count(NXT_PORT_B);
-        pos_l = toRadians(pos_l); /*Convert pos to radians*/
-	/*Get current speed*/	
-	derivative(&right_motor, pos);
-	derivative(&left_motor, pos_l);
-	/*Update the controller*/
-	power = controllerUpdate(&right_motor,(right_motor.dVel - right_motor.cVel));
-	power_l = controllerUpdate(&left_motor,(left_motor.dVel - left_motor.cVel));
+TASK(MotorControl) {
+    static double pos;
+    static double power;
+    static double pos_l;
+    static double power_l;
+    pos = nxt_motor_get_count(NXT_PORT_A);
+    pos = toRadians(pos); /*Convert pos to radians*/
+    pos_l = nxt_motor_get_count(NXT_PORT_B);
+    pos_l = toRadians(pos_l); /*Convert pos to radians*/
+    /*Get current speed*/
+    derivative(&right_motor, pos);
+    derivative(&left_motor, pos_l);
 
-	/*Update motor power*/
-	nxt_motor_set_speed(NXT_PORT_A,saturator(power));
-	nxt_motor_set_speed(NXT_PORT_B,saturator(power_l));
+    /*Calculate Desired Velocity(From unicycle Output)*/
+    calcDesiredVelocity(&right_motor, &left_motor, &unicycle_controller);
+
+    /*Update the controller*/
+    power = controllerUpdate(&right_motor,(right_motor.dVel - right_motor.cVel));
+    power_l = controllerUpdate(&left_motor,(left_motor.dVel - left_motor.cVel));
+
+    /*Update motor power*/
+    nxt_motor_set_speed(NXT_PORT_A,saturator(power), 1);
+    nxt_motor_set_speed(NXT_PORT_B,saturator(power_l), 1);
     TerminateTask();
 }
 
+TASK(UnicycleController) {
+    static double sonar;
+    sonar = getPositionFromWall(&unicycle_controller);
+    unicycleUpdate(&unicycle_controller, (DESIRED_POSITION - unicycle_controller.cPos) );
+}
 TASK(DisplayTask)
 {
-    //  ecrobot_status_monitor("nxtLEGO client");
-#if 1
+      ecrobot_status_monitor("nxtLEGO client");
+#if 0
     display_clear(1);
     display_goto_xy(1,0);
     display_string("nxtLEGO client");
