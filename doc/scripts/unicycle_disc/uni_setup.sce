@@ -31,7 +31,9 @@ uni_c = (z+1)/(z+2); //test
 //G_uni = v/s^2;
 
 //Init the motor parameters
-//exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/unicycle/rootlocus.sce',-1);
-//exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/unicycle/unicycle_model.sce',-1);
-//exec('/home/nkigen;/NXT/nxtLEGO/doc/scripts/controller/rootlocus_ideal.sce',-1);
-//exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/controller/rootlocus_encoder.sce',-1);
+exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/controller/rootlocus_ideal.sce',-1);
+exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/controller/rootlocus_encoder.sce',-1);
+exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/controller/discrete.sce',-1);
+exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/unicycle_disc/rootlocus.sce',-1);
+exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/unicycle_disc/unicycle_model.sce',-1);
+exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/unicycle_disc/discrete_unicycle.sce',-1);

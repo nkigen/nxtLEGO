@@ -1,4 +1,4 @@
-//Discritization
+//Discretization
 global C; 
 global D_C;
 global Tc;
