@@ -110,7 +110,7 @@ void user_1ms_isr_type2(void)
 
 TASK(BtComm)
 {
-    /*
+    /*USed when in stream mode
     if(stream_size == 0 || enable_streaming == 1)
         bt_conn_status = bt_read((U8*)incoming_packet, 0, sizeof(bt_packet_t));
 

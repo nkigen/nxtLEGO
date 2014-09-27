@@ -20,12 +20,12 @@ R = 0.028;
 D = 0.11;
 Kc_uni = 0.001;
 uni_Tc = 0.004;
-v = 4; //rad/s
+v = 8; //rad/s
 uni_theta = 0.707;
 uni_x = 0.7;
 uni_y = 4.5;
 
-uni_c = (z+1)/(z+2); //test
+//uni_c = (z+1)/(z+2); //test
 //Unicycle linear model
 
 //G_uni = v/s^2;
