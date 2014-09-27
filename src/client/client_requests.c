@@ -4,7 +4,6 @@
 #include "kernel_id.h"
 #include "ecrobot_interface.h"
 
-#include "include/client_utilities.h"
 #include "include/client_req.h"
 
 #define GET_MOTOR_COUNT		GET_MOTOR_POWER

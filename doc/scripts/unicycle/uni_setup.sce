@@ -8,10 +8,14 @@ global R;
 R = 0.028;
 D = 0.11;
 uni_Tc = 0.004;
-v = 1; //rad/s
+v = 4; //rad/s
 uni_theta = 0.707;
 uni_x = 0.7;
 uni_y = 4.5;
+
+//Unicycle linear model
+
+//G_uni = v/s^2;
 
 //Init the motor parameters
 exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/unicycle/rootlocus.sce',-1);
