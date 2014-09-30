@@ -37,28 +37,39 @@ void init_controller(MOTOR_CONTROLLER *c) {
     c->fPrev = 0;
 }
 
-void initUnicycle(UNICYCLE_CONTROLLER *uc){
-uc->cPos = 0;
-}
-void calcDesiredVelocity(MOTOR_CONTROLLER *rm, MOTOR_CONTROLLER *lm, UNICYCLE_CONTROLLER *uc){
+void initUnicycle(UNICYCLE_CONTROLLER *uc) {
+    uc->w = 0.0;
+    uc->w1 = 0.0;
+    uc->e = 0.0;
+    uc->e1 = 0.0;
+    uc->A = 0.9901485;
+    uc->B = 0.9704455;
 
-	/*Left Motor*/
-	lm->dVel = ((2 * V) + (uc->cPos * D)) /(2 * R);
-	/*right Motor*/
-	rm->dVel = ((2 * V) - (uc->cPos * D)) /(2 * R); 
+}
+
+void calcDesiredVelocity(MOTOR_CONTROLLER *rm, MOTOR_CONTROLLER *lm, UNICYCLE_CONTROLLER *uc) {
+
+    /*Left Motor*/
+    lm->dVel = ((2 * V) + (uc->cPos * D)) /(2 * R);
+    /*right Motor*/
+    rm->dVel = ((2 * V) - (uc->cPos * D)) /(2 * R);
 }
 /*Output: desired power*/
 double controllerUpdate(MOTOR_CONTROLLER *c, double error) {
     /*TODO:implement this*/
-	return 0.0;
+    return 0.0;
 }
 
 
 /**
  * The Unicycle Controller implementation
  */
-double unicycleUpdate(UNICYCLE_CONTROLLER *uc, double error){
-return 0.0;
+double unicycleUpdate(UNICYCLE_CONTROLLER *uc, double error) {
+    uc->w = (uc->w1 - uc->e1 + uc->A*uc->e)*1/uc->B;
+    uc->w1 = uc->w;
+    uc->e1 = uc->e;
+    uc->e = error;
+    return uc->w;
 }
 double derivative(MOTOR_CONTROLLER *c, double val) {
     c->dPrev = (val - c->dPrev)/ T;
@@ -70,3 +81,4 @@ double filter(MOTOR_CONTROLLER *c, double input) {
     c->fPrev = (1 - LP_ALPHA)*c->fPrev + LP_ALPHA*input;
     return c->fPrev;
 }
+

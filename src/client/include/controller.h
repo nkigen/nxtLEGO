@@ -29,7 +29,12 @@ typedef struct {
 } MOTOR_CONTROLLER;
 
 typedef struct {
-    double cPos; /*Current Unicycle Position*/
+    double w; 
+    double A;
+    double B;
+    double e1;
+    double e;
+    double w1; 
 } UNICYCLE_CONTROLLER;
 
 extern MOTOR_CONTROLLER left_motor;
