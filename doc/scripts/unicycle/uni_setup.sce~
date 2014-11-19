@@ -1,8 +1,0 @@
-global uni_x;
-global uni_y;
-uni_x = 0.7;
-uni_y = 0.7;
-exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/unicycle/rootlocus.sce',-1);
-exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/unicycle/unicycle.sce',-1);
-exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/controller/rootlocus_ideal.sce',-1);
-exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/controller/rootlocus_encoder.sce',-1);
