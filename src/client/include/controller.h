@@ -7,18 +7,25 @@
 
 #define MY_PI 		(3.1415926f)
 /*Controller Values*/
-#define K 		1 //to define
-#define LP_ALPHA	0.4
-#define A		1
-#define B		1
-#define X		1
-#define Y		1
+#define Kc	40
+#define LP_ALPHA 	0.62
+#define A	(-1.9778667)
+#define B	 (0.9779244)
+#define X	(-1.9231163)
+#define Y	 (0.9231163)
 
 /*Unicycle controller Constant values*/
 #define DESIRED_POSITION	(0.5) //Desired distance from the wall
 #define V	3 //Foward Velocity
 #define R	(0.028)
 #define D	(0.11)
+
+typedef struct {
+    double cPos;
+    double e1, e;
+    double w1, w;
+    double a, b;
+} UNICYCLE_CONTROLLER;
 
 typedef struct {
     double e, e1, e2; /*Error values*/
@@ -28,9 +35,6 @@ typedef struct {
     double cVel,dVel; /*current and desired velocity*/
 } MOTOR_CONTROLLER;
 
-typedef struct {
-    double cPos; /*Current Unicycle Position*/
-} UNICYCLE_CONTROLLER;
 
 extern MOTOR_CONTROLLER left_motor;
 extern MOTOR_CONTROLLER right_motor;

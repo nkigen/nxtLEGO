@@ -20,10 +20,10 @@ R = 0.028;
 D = 0.11;
 Kc_uni = 0.001;
 uni_Tc = 0.004;
-v = 8; //rad/s
+v = 4; //rad/s
 uni_theta = 0.707;
 uni_x = 0.7;
-uni_y = 4.5;
+uni_y = 1.0;
 
 //uni_c = (z+1)/(z+2); //test
 //Unicycle linear model
@@ -37,3 +37,4 @@ exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/controller/discrete.sce',-1);
 exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/unicycle_disc/rootlocus.sce',-1);
 exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/unicycle_disc/unicycle_model.sce',-1);
 exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/unicycle_disc/discrete_unicycle.sce',-1);
+exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/unicycle_disc/calc_distance.sce',-1);
