@@ -4,9 +4,9 @@ global fname; // used by analysis.sce
 global imgname;
 global StepValue;
 global DATA_PATH;
-DATA_PATH = '../data/data_left/';
+DATA_PATH = '../../data/data_left/param_id/';
 global IMAGES_PATH;
-IMAGES_PATH = '../images/left_motor';
+IMAGES_PATH = '../../images/left_motor';
 
 global CURRENT_POWER; //Current power being analysed
 
