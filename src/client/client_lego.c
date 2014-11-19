@@ -6,7 +6,6 @@
 #include "include/client_lego.h"
 #include "include/client_req.h"
 #include "../common/include/bt_packet.h"
-#include "include/controller.h"
 
 #define unlikely(x)     __builtin_expect((x),0)
 #define likely(x)       __builtin_expect((x),1)
@@ -17,6 +16,7 @@ uint32_t bt_conn_status;
 uint16_t stream_size;
 uint16_t o_stream; //debugging
 uint8_t enable_streaming;
+uint8_t current_motor;
 bt_packet_t incoming_packet[1];
 bt_packet_t outgoing_packet[1];
 
@@ -29,13 +29,9 @@ uint32_t num_packets; /*Number of bt packets received/sent successfully*/
 
 DeclareCounter(SysTimerCnt);
 DeclareTask(BtComm);
-DeclareTask(MotorControl);
-DeclareTask(UnicycleController);
 DeclareTask(DisplayTask);
 DeclareResource(RES_LCD);
 DeclareAlarm(BT_COMM_ALARM);
-DeclareAlarm(CONTROL_ALARM);
-DeclareAlarm(UNICYCLE_ALARM);
 DeclareAlarm(LCD_UPDATE_ALARM);
 
 
@@ -52,17 +48,6 @@ static void reset_motor_power()
     nxt_motor_set_speed(NXT_PORT_C, 0, 1);
 }
 
-
-/*Position Estimation Algorithm*/
-
-double getPositionFromWall(UNICYCLE_CONTROLLER *uc) {
-    static double sonar;
-    sonar = ecrobot_get_sonar_sensor(NXT_PORT_S4);
-
-    uc->cPos = sonar;
-    return sonar;
-}
-
 /****Initialize DEVICE*****/
 void ecrobot_device_initialize()
 {
@@ -76,9 +61,6 @@ void ecrobot_device_initialize()
     enable_streaming = 0;
     reset_data_structs();
     reset_motor_power();
-    init_controller(&left_motor);
-    init_controller(&right_motor);
-    initUnicycle(&unicycle_controller);
 }
 
 
@@ -111,7 +93,6 @@ void user_1ms_isr_type2(void)
 
 TASK(BtComm)
 {
-    /*USed when in stream mode
     if(stream_size == 0 || enable_streaming == 1)
         bt_conn_status = bt_read((U8*)incoming_packet, 0, sizeof(bt_packet_t));
 
@@ -127,45 +108,13 @@ TASK(BtComm)
         bt_send((U8*)outgoing_packet, (U32)sizeof(bt_packet_t));
     }
 
-    */
     TerminateTask();
 }
 
-TASK(MotorControl) {
-    static double pos;
-    static double power;
-    static double pos_l;
-    static double power_l;
-    pos = nxt_motor_get_count(NXT_PORT_A);
-    pos = toRadians(pos); /*Convert pos to radians*/
-    pos_l = nxt_motor_get_count(NXT_PORT_B);
-    pos_l = toRadians(pos_l); /*Convert pos to radians*/
-    /*Get current speed*/
-    derivative(&right_motor, pos);
-    derivative(&left_motor, pos_l);
-
-    /*Calculate Desired Velocity(From unicycle Output)*/
-    calcDesiredVelocity(&right_motor, &left_motor, &unicycle_controller);
-
-    /*Update the controller*/
-    power = controllerUpdate(&right_motor,(right_motor.dVel - right_motor.cVel));
-    power_l = controllerUpdate(&left_motor,(left_motor.dVel - left_motor.cVel));
-
-    /*Update motor power*/
-    nxt_motor_set_speed(NXT_PORT_A,saturator(power), 1);
-    nxt_motor_set_speed(NXT_PORT_B,saturator(power_l), 1);
-    TerminateTask();
-}
-
-TASK(UnicycleController) {
-    static double sonar;
-    sonar = getPositionFromWall(&unicycle_controller);
-    unicycleUpdate(&unicycle_controller, (DESIRED_POSITION - unicycle_controller.cPos) );
-}
 TASK(DisplayTask)
 {
       ecrobot_status_monitor("nxtLEGO client");
-#if 0
+#if 1
     display_clear(1);
     display_goto_xy(1,0);
     display_string("nxtLEGO client");
@@ -179,12 +128,6 @@ TASK(DisplayTask)
     display_unsigned(num_packets,6);
     display_goto_xy(1,3);
     display_string("ssize:");
-    display_goto_xy(9,3);
-    display_unsigned(K_left,6);
-    display_goto_xy(1,5);
-    display_string("power:");
-    display_goto_xy(9,5);
-    display_int(u_left,6);
 #endif
     TerminateTask();
 }

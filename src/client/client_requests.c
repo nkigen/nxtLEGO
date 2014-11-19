@@ -10,15 +10,11 @@
 
 /*******GLOBAL VARIABLES*************/
 extern uint32_t timestamp;
-extern float current_velocity_left;
-extern float u_left;
-extern float e_left;
 extern uint16_t stream_size;
 extern uint16_t o_stream;
 extern uint8_t current_motor;
 extern uint8_t enable_streaming;
-extern float desired_velocity_left;
-extern uint8_t enable_controller;
+
 static inline void bt_decode_port(uint8_t *in_port,uint8_t *out_port)
 {
     switch(*in_port)
@@ -60,12 +56,12 @@ static inline void bt_req_process(bt_req_t *in, bt_req_t *out)
     {
     case SET_MOTOR_POWER:
         nxt_motor_set_speed(port, in->data[VALUE_INDEX], 1);
-	current_motor = port;
+        current_motor = port;
         /*TODO: Send ACK to server after speed change*/
         break;
     case GET_MOTOR_COUNT:
-	out->data[VALUE_INDEX] = nxt_motor_get_count(port);
-	//out->data[TIMESTAMP_INDEX] = timestamp;
+        out->data[VALUE_INDEX] = nxt_motor_get_count(port);
+        //out->data[TIMESTAMP_INDEX] = timestamp;
         //out->data[TIMESTAMP_INDEX] = timestamp;
         out->data[TIMESTAMP_INDEX] = systick_get_ms();
         break;
@@ -74,22 +70,9 @@ static inline void bt_req_process(bt_req_t *in, bt_req_t *out)
         stream_size = 0;
         break;
     case BT_START_STREAMING:
-      o_stream = stream_size =  in->data[VALUE_INDEX];
+        o_stream = stream_size =  in->data[VALUE_INDEX];
         enable_streaming = 1;
         break;
-    case BT_CONTROL_MODE:
-      o_stream = stream_size =  in->data[TIMESTAMP_INDEX];
-	enable_controller = 1;
-	enable_streaming = 1;
-	current_motor = port;
-	desired_velocity_left = in->data[VALUE_INDEX];
-	break;
-    case BT_CONTROL_STREAM:
-        out->data[VALUE_INDEX] = u_left;//current_velocity;
-	out->data[TIMESTAMP_INDEX] = e_left;//systick_get_ms();
-//	out->data[TIMESTAMP_INDEX] = 
-	break;
-/*TODO: Add another case here for the velocity*/
     default:
         break;
     }
