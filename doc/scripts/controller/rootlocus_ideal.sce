@@ -36,8 +36,9 @@ C =((s-z0)*(s-z1))/((s)*(s-p0));
 xi_t = getMinimumXI(0.2);
 w_t = getMinimumOmega(5,0.3,xi_n);
 
+sys= syslin('c',C*G);
 //clf();
-//evans(C*G);
+//evans(sys,100);
 //sgrid(xi_t,w_t);
 //
 //kc_lim = kpure(syslin('c',C*G));
