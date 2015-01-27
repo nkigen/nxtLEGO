@@ -80,6 +80,7 @@ double unicycleUpdate(UNICYCLE_CONTROLLER *uc, double error) {
 }
 double derivative(MOTOR_CONTROLLER *c, double val) {
     c->dPrev = (val - c->dPrev)/ T;
+    c->dPrev = filter(c,c->dPrev);
     return c->dPrev;
 }
 

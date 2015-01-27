@@ -139,7 +139,7 @@ TASK(MotorControl) {
     pos = toRadians(pos); /*Convert pos to radians*/
     pos_l = nxt_motor_get_count(NXT_PORT_B);
     pos_l = toRadians(pos_l); /*Convert pos to radians*/
-    /*Get current speed*/
+    /*Get current speed (Filtered)*/
     derivative(&right_motor, pos);
     derivative(&left_motor, pos_l);
 
