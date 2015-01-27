@@ -1,7 +1,7 @@
 s = %s;
-global uni_C;
-global uni_Kc;
-global uni_G;
+global uniC;
+global uniKc;
+global uniG;
 
 global v;
 v = 0.05;

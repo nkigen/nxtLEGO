@@ -1,3 +1,4 @@
 //Discrete
-
-uni_GD = ss2tf(dscr())
+global uniKcD;
+uniKcD = uniKc;
+uniGD = ss2tf(dscr(uniC,uni_Tc));

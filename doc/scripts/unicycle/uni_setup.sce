@@ -22,3 +22,9 @@ exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/unicycle/rootlocus.sce',-1);
 exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/unicycle/unicycle_model.sce',-1);
 exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/controller/rootlocus_ideal.sce',-1);
 exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/controller/rootlocus_encoder.sce',-1);
+
+//Discrete Params
+exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/unicycle/discrete_unicycle.sce',-1);
+exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/controller/discrete.sce',-1);
+exec('/home/nkigen/NXT/nxtLEGO/doc/scripts/controller/ZDerivative.sce',-1);
+
