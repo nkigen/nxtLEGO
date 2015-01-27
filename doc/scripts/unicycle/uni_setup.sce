@@ -12,7 +12,7 @@ v = 4; //rad/s
 uni_theta = 0.707;
 uni_x = 0.7;
 uni_y = 4.5;
-q0=[0;2;%pi];
+q0=[0;2.0;%pi];
 //Unicycle linear model
 
 //G_uni = v/s^2;

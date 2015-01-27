@@ -10,8 +10,8 @@ uni_G = v/s^2;
 
 //controller
 
-uni_Kc = 4;
-uni_C = (s+4)/(s+30);
+uni_Kc = 3;
+uni_C = (s+1)/(s+4);
 
 //evans(uni_G*uni_C);
 //rlocus();
