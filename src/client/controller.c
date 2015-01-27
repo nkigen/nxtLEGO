@@ -10,6 +10,11 @@ MOTOR_CONTROLLER right_motor;
 UNICYCLE_CONTROLLER unicycle_controller;
 
 
+/*Low Pass Filter*/
+double filter(MOTOR_CONTROLLER *c, double input) {
+    c->fPrev = (1 - LP_ALPHA)*c->fPrev + LP_ALPHA*input;
+    return c->fPrev;
+}
 /*Convert degrees to radians*/
 double toRadians(int rad)
 {
@@ -44,8 +49,8 @@ void initUnicycle(UNICYCLE_CONTROLLER *uc) {
     uc->w1 = 0.0;
     uc->e = 0.0;
     uc->e1 = 0.0;
-    uc->a = 0.9901485;
-    uc->b = 0.9704455;
+    uc->a = 0.9984038;
+    uc->b = 0.9952115;
     uc->cPos = 0.0;
     uc->pPos = 0.0;
 }
@@ -84,13 +89,8 @@ double derivative(MOTOR_CONTROLLER *c, double val) {
     return c->dPrev;
 }
 
-/*Low Pass Filter*/
-double filter(MOTOR_CONTROLLER *c, double input) {
-    c->fPrev = (1 - LP_ALPHA)*c->fPrev + LP_ALPHA*input;
-    return c->fPrev;
-}
 
-inline double sensor_model(UNICYCLE_CONTROLLER *u) {
+double sensor_model(UNICYCLE_CONTROLLER *u) {
     double dt = systick_get_ms()*0.001*V;
     double dtheta = atan((u->cPos - u->pPos)/dt);
     return u->pPos*cos(dtheta);

@@ -1,4 +1,5 @@
 //Discrete
 global uniKcD;
-uniKcD = uniKc;
-uniGD = uniC;//ss2tf(dscr(uniC,uni_Tc));
+uniKcD = 0.9;
+uniC = (s+0.4)/(s+1.2);
+uniGD = ss2tf(dscr(uniC,uni_Tc));

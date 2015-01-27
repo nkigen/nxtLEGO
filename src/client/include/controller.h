@@ -8,7 +8,7 @@
 #define MY_PI 		(3.1415926f)
 /*Controller Values*/
 #define Kc	40
-#define UNI_Kc	4
+#define UNI_Kc	(0.9)
 #define LP_ALPHA 	0.62
 #define A	(-1.9778667)
 #define B	 (0.9779244)
@@ -53,5 +53,6 @@ double unicycleUpdate(UNICYCLE_CONTROLLER *uc, double error);
 double derivative(MOTOR_CONTROLLER *c, double val);
 void calcDesiredVelocity(MOTOR_CONTROLLER *rm, MOTOR_CONTROLLER *lm, UNICYCLE_CONTROLLER *uc);
 void split_omega(MOTOR_CONTROLLER *rm, MOTOR_CONTROLLER *lm, UNICYCLE_CONTROLLER *uc);
+double sensor_model(UNICYCLE_CONTROLLER *c);
 
 #endif
