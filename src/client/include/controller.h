@@ -8,6 +8,7 @@
 #define MY_PI 		(3.1415926f)
 /*Controller Values*/
 #define Kc	40
+#define UNI_Kc	4
 #define LP_ALPHA 	0.62
 #define A	(-1.9778667)
 #define B	 (0.9779244)
@@ -16,12 +17,13 @@
 
 /*Unicycle controller Constant values*/
 #define DESIRED_POSITION	(0.5) //Desired distance from the wall
-#define V	3 //Foward Velocity
-#define R	(0.028)
-#define D	(0.11)
+#define V	(0.05) //Foward Velocity
+#define R	(0.028) //wheel radius
+#define D	(0.11) // distance between the wheels
 
 typedef struct {
-    double cPos;
+    double cPos; /*current sonar measurement*/
+    double pPos; /*previous sonar measurement*/
     double e1, e;
     double w1, w;
     double a, b;
@@ -33,6 +35,7 @@ typedef struct {
     double dPrev; /*Previous value of derivative*/
     double fPrev; /*Prev filter value*/
     double cVel,dVel; /*current and desired velocity*/
+    double mOmega;
 } MOTOR_CONTROLLER;
 
 
@@ -44,8 +47,11 @@ void init_controller(MOTOR_CONTROLLER *c);
 void initUnicycle(UNICYCLE_CONTROLLER *uc);
 double toRadians(int rad);
 int saturator(double val);
+double unicycleSaturator(double val);
 double controllerUpdate(MOTOR_CONTROLLER *c, double error);
 double unicycleUpdate(UNICYCLE_CONTROLLER *uc, double error);
 double derivative(MOTOR_CONTROLLER *c, double val);
 void calcDesiredVelocity(MOTOR_CONTROLLER *rm, MOTOR_CONTROLLER *lm, UNICYCLE_CONTROLLER *uc);
+void split_omega(MOTOR_CONTROLLER *rm, MOTOR_CONTROLLER *lm, UNICYCLE_CONTROLLER *uc);
+
 #endif

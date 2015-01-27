@@ -1,5 +1,6 @@
 #include "include/controller.h"
-
+#include<math.h>
+#include "ecrobot_interface.h"
 
 
 /*Motor Definition*/
@@ -35,6 +36,7 @@ void init_controller(MOTOR_CONTROLLER *c) {
     c->cVel = 0;
     c->dVel = 0;
     c->fPrev = 0;
+    c->mOmega = 0.0;
 }
 
 void initUnicycle(UNICYCLE_CONTROLLER *uc) {
@@ -45,11 +47,11 @@ void initUnicycle(UNICYCLE_CONTROLLER *uc) {
     uc->a = 0.9901485;
     uc->b = 0.9704455;
     uc->cPos = 0.0;
-
+    uc->pPos = 0.0;
 }
 
 void calcDesiredVelocity(MOTOR_CONTROLLER *rm, MOTOR_CONTROLLER *lm, UNICYCLE_CONTROLLER *uc) {
-
+	split_omega(rm,lm,uc);
     /*Left Motor*/
     lm->dVel = ((2 * V) + (uc->w * D)) /(2 * R);
     /*right Motor*/
@@ -57,12 +59,11 @@ void calcDesiredVelocity(MOTOR_CONTROLLER *rm, MOTOR_CONTROLLER *lm, UNICYCLE_CO
 }
 /*Output: desired power*/
 double controllerUpdate(MOTOR_CONTROLLER *c, double error) {
-    /*TODO:implement this*/
-       c->u = -c->u1*X - c->u2*Y + Kc*(c->e + c->e1*A + c->e2*B);
-       c->u2 = c->u1;
-       c->u1 = c->u;
-       c->e2 = c->e1;
-       c->e1 = c->e;
+    c->u = -c->u1*X - c->u2*Y + Kc*(c->e + c->e1*A + c->e2*B);
+    c->u2 = c->u1;
+    c->u1 = c->u;
+    c->e2 = c->e1;
+    c->e1 = c->e;
     return c->u;
 }
 
@@ -88,3 +89,12 @@ double filter(MOTOR_CONTROLLER *c, double input) {
     return c->fPrev;
 }
 
+inline double sensor_model(UNICYCLE_CONTROLLER *u) {
+    double dt = systick_get_ms()*0.001*V;
+    double dtheta = atan((u->cPos - u->pPos)/dt);
+    return u->pPos*cos(dtheta);
+}
+
+inline void split_omega(MOTOR_CONTROLLER *right, MOTOR_CONTROLLER *left, UNICYCLE_CONTROLLER *uc){
+
+}

@@ -59,8 +59,7 @@ double getPositionFromWall(UNICYCLE_CONTROLLER *uc) {
     static double sonar;
     sonar = ecrobot_get_sonar_sensor(NXT_PORT_S4);
 
-    uc->cPos = sonar;
-    return sonar;
+    return sensor_model(uc);
 }
 
 /****Initialize DEVICE*****/
@@ -162,6 +161,7 @@ TASK(UnicycleController) {
     sonar = getPositionFromWall(&unicycle_controller);
     unicycleUpdate(&unicycle_controller, (DESIRED_POSITION - unicycle_controller.cPos) );
 }
+
 TASK(DisplayTask)
 {
       ecrobot_status_monitor("nxtLEGO client");
