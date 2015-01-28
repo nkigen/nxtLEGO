@@ -17,7 +17,7 @@
 
 /*Unicycle controller Constant values*/
 #define DESIRED_POSITION	(0.5) //Desired distance from the wall
-#define V	(0.05) //Foward Velocity
+#define V	(0.25) //Foward Velocity
 #define R	(0.028) //wheel radius
 #define D	(0.11) // distance between the wheels
 
@@ -35,7 +35,6 @@ typedef struct {
     double dPrev; /*Previous value of derivative*/
     double fPrev; /*Prev filter value*/
     double cVel,dVel; /*current and desired velocity*/
-    double mOmega;
 } MOTOR_CONTROLLER;
 
 
@@ -52,7 +51,6 @@ double controllerUpdate(MOTOR_CONTROLLER *c, double error);
 double unicycleUpdate(UNICYCLE_CONTROLLER *uc, double error);
 double derivative(MOTOR_CONTROLLER *c, double val);
 void calcDesiredVelocity(MOTOR_CONTROLLER *rm, MOTOR_CONTROLLER *lm, UNICYCLE_CONTROLLER *uc);
-void split_omega(MOTOR_CONTROLLER *rm, MOTOR_CONTROLLER *lm, UNICYCLE_CONTROLLER *uc);
 double sensor_model(UNICYCLE_CONTROLLER *c);
 
 #endif

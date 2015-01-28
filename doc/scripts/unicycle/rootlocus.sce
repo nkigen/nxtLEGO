@@ -10,8 +10,8 @@ uniG = v/s^2;
 uniKc = 2;
 uniC = (s+0.4)/(s+2);
 
-//clf();
-//evans(uniG*uniC, uniKc);
-//rlocus();
+clf();
+evans(uniG*uniC, uniKc);
+rlocus();
 
 

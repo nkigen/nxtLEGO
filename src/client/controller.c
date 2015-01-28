@@ -11,12 +11,12 @@ UNICYCLE_CONTROLLER unicycle_controller;
 
 
 /*Low Pass Filter*/
-double filter(MOTOR_CONTROLLER *c, double input) {
+inline double filter(MOTOR_CONTROLLER *c, double input) {
     c->fPrev = (1 - LP_ALPHA)*c->fPrev + LP_ALPHA*input;
     return c->fPrev;
 }
 /*Convert degrees to radians*/
-double toRadians(int rad)
+inline double toRadians(int rad)
 {
     return ( ( rad*MY_PI) / 180);
 }
@@ -41,7 +41,6 @@ void init_controller(MOTOR_CONTROLLER *c) {
     c->cVel = 0;
     c->dVel = 0;
     c->fPrev = 0;
-    c->mOmega = 0.0;
 }
 
 void initUnicycle(UNICYCLE_CONTROLLER *uc) {
@@ -56,19 +55,19 @@ void initUnicycle(UNICYCLE_CONTROLLER *uc) {
 }
 
 void calcDesiredVelocity(MOTOR_CONTROLLER *rm, MOTOR_CONTROLLER *lm, UNICYCLE_CONTROLLER *uc) {
-	split_omega(rm,lm,uc);
-    /*Left Motor*/
-    lm->dVel = ((2 * V) + (uc->w * D)) /(2 * R);
-    /*right Motor*/
-    rm->dVel = ((2 * V) - (uc->w * D)) /(2 * R);
+	rm->dVel = (uc->w*(D / (2*R) )) + V/R;
+	lm->dVel =   V/R - (uc->w*(D / (2*R) ));
 }
+
 /*Output: desired power*/
 double controllerUpdate(MOTOR_CONTROLLER *c, double error) {
-    c->u = -c->u1*X - c->u2*Y + Kc*(c->e + c->e1*A + c->e2*B);
+    //c->u = -c->u1*X - c->u2*Y + Kc*(c->e + c->e1*A + c->e2*B);
+    c->u = c->u1*X + c->u2*Y + Kc*(c->e + c->e1*A + c->e2*B);
     c->u2 = c->u1;
     c->u1 = c->u;
     c->e2 = c->e1;
     c->e1 = c->e;
+    c->e = error;
     return c->u;
 }
 
@@ -77,25 +76,25 @@ double controllerUpdate(MOTOR_CONTROLLER *c, double error) {
  * The Unicycle Controller implementation
  */
 double unicycleUpdate(UNICYCLE_CONTROLLER *uc, double error) {
-    uc->w = (uc->w1 - uc->e1 + uc->a*uc->e)*1/uc->b;
+    uc->w = (uc->w1 - uc->e1 + uc->a*uc->e)*UNI_Kc/uc->b;
     uc->w1 = uc->w;
     uc->e1 = uc->e;
     uc->e = error;
     return uc->w;
 }
+
 double derivative(MOTOR_CONTROLLER *c, double val) {
-    c->dPrev = (val - c->dPrev)/ T;
-    c->dPrev = filter(c,c->dPrev);
-    return c->dPrev;
+    double der = (val - c->dPrev)/ T;
+    c->dPrev = val;
+    c->dPrev = filter(c,der);
+    return der;
 }
 
 
 double sensor_model(UNICYCLE_CONTROLLER *u) {
-    double dt = systick_get_ms()*0.001*V;
+    double dt = 0.10*V;//systick_get_ms()*0.001*V;
     double dtheta = atan((u->cPos - u->pPos)/dt);
-    return u->pPos*cos(dtheta);
+    u->pPos = u->cPos;
+    return u->cPos*cos(dtheta);
 }
 
-inline void split_omega(MOTOR_CONTROLLER *right, MOTOR_CONTROLLER *left, UNICYCLE_CONTROLLER *uc){
-
-}
