@@ -17,7 +17,7 @@ VER_PATH = DATA_PATH+'verification/';
 global VER_IMG_PATH;
 VER_IMG_PATH = IMAGES_PATH+'verification/';
 
-verFiles = ['power_30.data','power_80.data','power_100.data']; //list of data files
+verFiles = ['power_30.dat','power_80.dat','power_100.dat']; //list of data files
 pow__ = [30,80,100];
 //get size
 _ff = size(verFiles);
@@ -30,7 +30,7 @@ if Vfd == -1 then
 end
 
 for i = 1:fsize
-    fname = DATA_PATH+verFiles(i);
+    fname = VER_PATH+verFiles(i);
     imgname= VER_IMG_PATH+verFiles(i);
     CURRENT_POWER=pow__(i);
     exec('verification.sce', -1);
