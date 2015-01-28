@@ -8,11 +8,11 @@ global R;
 R = 0.028;
 D = 0.11;
 uni_Tc = 0.01;
-v = 0.25; 
+v = 0.15; 
 uni_theta = 0.707;
 uni_x = 0.7;
 uni_y = 4.5;
-q0=[0;1.0;%pi/10];
+q0=[0;0.7;%pi/10];
 //Unicycle linear model
 
 //G_uni = v/s^2;

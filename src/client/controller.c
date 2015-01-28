@@ -48,6 +48,8 @@ void initUnicycle(UNICYCLE_CONTROLLER *uc) {
     uc->w1 = 0.0;
     uc->e = 0.0;
     uc->e1 = 0.0;
+    //uc->a = 0.9990104;
+    //uc->b = 0.9792190;
     uc->a = 0.9984038;
     uc->b = 0.9952115;
     uc->cPos = 0.0;
@@ -61,8 +63,8 @@ void calcDesiredVelocity(MOTOR_CONTROLLER *rm, MOTOR_CONTROLLER *lm, UNICYCLE_CO
 
 /*Output: desired power*/
 double controllerUpdate(MOTOR_CONTROLLER *c, double error) {
-    //c->u = -c->u1*X - c->u2*Y + Kc*(c->e + c->e1*A + c->e2*B);
-    c->u = c->u1*X + c->u2*Y + Kc*(c->e + c->e1*A + c->e2*B);
+    c->u = -c->u1*X - c->u2*Y + Kc*(error + c->e1*A + c->e2*B);
+    //c->u = c->u1*X + c->u2*Y + Kc*(c->e + c->e1*A + c->e2*B);
     c->u2 = c->u1;
     c->u1 = c->u;
     c->e2 = c->e1;
@@ -76,7 +78,7 @@ double controllerUpdate(MOTOR_CONTROLLER *c, double error) {
  * The Unicycle Controller implementation
  */
 double unicycleUpdate(UNICYCLE_CONTROLLER *uc, double error) {
-    uc->w = (uc->w1 - uc->e1 + uc->a*uc->e)*UNI_Kc/uc->b;
+    uc->w = (uc->w1 - uc->e1 + uc->a*error)*UNI_Kc/uc->b;
     uc->w1 = uc->w;
     uc->e1 = uc->e;
     uc->e = error;
@@ -86,8 +88,7 @@ double unicycleUpdate(UNICYCLE_CONTROLLER *uc, double error) {
 double derivative(MOTOR_CONTROLLER *c, double val) {
     double der = (val - c->dPrev)/ T;
     c->dPrev = val;
-    c->dPrev = filter(c,der);
-    return der;
+    return filter(c,der);
 }
 
 
