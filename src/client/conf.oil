@@ -23,19 +23,11 @@ CPU ATMEL_AT91SAM7S256
     };
 
 
-    TASK BtComm
-    {
-        AUTOSTART = FALSE;
-        PRIORITY = 4;
-        ACTIVATION = 1;
-        SCHEDULE = FULL;
-        STACKSIZE = 512;
-    };
 
     TASK MotorControl
     {
         AUTOSTART = FALSE;
-        PRIORITY = 2;
+        PRIORITY = 3;
         ACTIVATION = 1;
         SCHEDULE = FULL;
         STACKSIZE = 512;
@@ -44,7 +36,7 @@ CPU ATMEL_AT91SAM7S256
     TASK UnicycleController
     {
         AUTOSTART = FALSE;
-        PRIORITY = 3;
+        PRIORITY = 2;
         ACTIVATION = 1;
         SCHEDULE = FULL;
         STACKSIZE = 512;
@@ -66,21 +58,6 @@ CPU ATMEL_AT91SAM7S256
         TICKSPERBASE = 1;
     };
 
-
-    ALARM BT_COMM_ALARM
-    {
-        COUNTER = SysTimerCnt;
-        ACTION = ACTIVATETASK
-        {
-            TASK = BtComm;
-        };
-        AUTOSTART = TRUE
-        {
-            ALARMTIME = 1;
-            CYCLETIME = 4;  // 2ms run time
-            APPMODE = appmode1;
-        };
-    };
 
     ALARM MOTOR_ALARM
     {
@@ -107,7 +84,7 @@ CPU ATMEL_AT91SAM7S256
         AUTOSTART = TRUE
         {
             ALARMTIME = 1;
-            CYCLETIME = 40;  // 1ms run time
+            CYCLETIME = 100;  // 1ms run time
             APPMODE = appmode1;
         };
     };
@@ -122,7 +99,7 @@ CPU ATMEL_AT91SAM7S256
         AUTOSTART = TRUE
         {
             ALARMTIME = 1;
-            CYCLETIME = 100;    // 100ms run time
+            CYCLETIME = 500;    // 100ms run time
             APPMODE = appmode1;
         };
     };

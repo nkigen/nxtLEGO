@@ -1,18 +1,17 @@
 s = %s;
-global uni_C;
-global uni_Kc;
-global uni_G;
-
-
+global uniC;
+global uniKc;
+global uniG;
 //plant
-uni_G = v/s^2;
+uniG = v/s^2;
 
 //controller
 
-uni_Kc = 174;
-uni_C = (s+4)/(s+40);
+uniKc = 4.1;
+uniC = (s+0.1)/(s+2.1);
 
-//evans(uni_G*uni_C);
+//clf();
+//evans(uniG*uniC, uniKc);
 //rlocus();
 
 

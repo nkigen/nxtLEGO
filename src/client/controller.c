@@ -1,5 +1,6 @@
 #include "include/controller.h"
-
+#include<math.h>
+#include "ecrobot_interface.h"
 
 
 /*Motor Definition*/
@@ -9,8 +10,13 @@ MOTOR_CONTROLLER right_motor;
 UNICYCLE_CONTROLLER unicycle_controller;
 
 
+/*Low Pass Filter*/
+inline double filter(MOTOR_CONTROLLER *c, double input) {
+    c->fPrev = (1 - LP_ALPHA)*c->fPrev + LP_ALPHA*input;
+    return c->fPrev;
+}
 /*Convert degrees to radians*/
-double toRadians(int rad)
+inline double toRadians(int rad)
 {
     return ( ( rad*MY_PI) / 180);
 }
@@ -42,27 +48,28 @@ void initUnicycle(UNICYCLE_CONTROLLER *uc) {
     uc->w1 = 0.0;
     uc->e = 0.0;
     uc->e1 = 0.0;
-    uc->a = 0.9901485;
-    uc->b = 0.9704455;
+    //uc->a = 0.9990104;
+    //uc->b = 0.9792190;
+    uc->a = 0.9984038;
+    uc->b = 0.9952115;
     uc->cPos = 0.0;
-
+    uc->pPos = 0.0;
 }
 
 void calcDesiredVelocity(MOTOR_CONTROLLER *rm, MOTOR_CONTROLLER *lm, UNICYCLE_CONTROLLER *uc) {
-
-    /*Left Motor*/
-    lm->dVel = ((2 * V) + (uc->w * D)) /(2 * R);
-    /*right Motor*/
-    rm->dVel = ((2 * V) - (uc->w * D)) /(2 * R);
+	rm->dVel = (uc->w*(D / (2*R) )) + V/R;
+	lm->dVel =   V/R - (uc->w*(D / (2*R) ));
 }
+
 /*Output: desired power*/
 double controllerUpdate(MOTOR_CONTROLLER *c, double error) {
-    /*TODO:implement this*/
-       c->u = -c->u1*X - c->u2*Y + Kc*(c->e + c->e1*A + c->e2*B);
-       c->u2 = c->u1;
-       c->u1 = c->u;
-       c->e2 = c->e1;
-       c->e1 = c->e;
+    c->u = -c->u1*X - c->u2*Y + Kc*(error + c->e1*A + c->e2*B);
+    //c->u = c->u1*X + c->u2*Y + Kc*(c->e + c->e1*A + c->e2*B);
+    c->u2 = c->u1;
+    c->u1 = c->u;
+    c->e2 = c->e1;
+    c->e1 = c->e;
+    c->e = error;
     return c->u;
 }
 
@@ -71,20 +78,24 @@ double controllerUpdate(MOTOR_CONTROLLER *c, double error) {
  * The Unicycle Controller implementation
  */
 double unicycleUpdate(UNICYCLE_CONTROLLER *uc, double error) {
-    uc->w = (uc->w1 - uc->e1 + uc->a*uc->e)*1/uc->b;
+    uc->w = (uc->w1 - uc->e1 + uc->a*error)*UNI_Kc/uc->b;
     uc->w1 = uc->w;
     uc->e1 = uc->e;
     uc->e = error;
     return uc->w;
 }
+
 double derivative(MOTOR_CONTROLLER *c, double val) {
-    c->dPrev = (val - c->dPrev)/ T;
-    return c->dPrev;
+    double der = (val - c->dPrev)/ T;
+    c->dPrev = val;
+    return filter(c,der);
 }
 
-/*Low Pass Filter*/
-double filter(MOTOR_CONTROLLER *c, double input) {
-    c->fPrev = (1 - LP_ALPHA)*c->fPrev + LP_ALPHA*input;
-    return c->fPrev;
+
+double sensor_model(UNICYCLE_CONTROLLER *u) {
+    double dt = 0.10*V;//systick_get_ms()*0.001*V;
+    double dtheta = atan((u->cPos - u->pPos)/dt);
+    u->pPos = u->cPos;
+    return u->cPos*cos(dtheta);
 }
 
